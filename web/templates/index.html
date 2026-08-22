@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Network Attack Detection System | SOC Analyst Console</title>
+    <!-- Font Awesome Icons & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved brand-icon"></i>
+                <div class="brand-text">
+                    <h2>AI-IDS SOC</h2>
+                    <span>Deep Learning Guard</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-item active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="#mitre" class="nav-item"><i class="fa-solid fa-cubes"></i> MITRE ATT&CK</a>
+                <a href="#simulator" class="nav-item"><i class="fa-solid fa-bolt"></i> Attack Simulator</a>
+                <a href="#alerts" class="nav-item"><i class="fa-solid fa-bell"></i> Live Alerts</a>
+                <a href="#metrics" class="nav-item"><i class="fa-solid fa-brain"></i> Model Metrics</a>
+                <a href="#elk" class="nav-item"><i class="fa-solid fa-database"></i> ELK Integration</a>
+            </nav>
+
+            <div class="system-status-card">
+                <div class="status-indicator online"></div>
+                <div class="status-info">
+                    <span class="status-label">Engine Status</span>
+                    <span class="status-val">Ensemble Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1>AI-Powered Network Attack Detection System</h1>
+                    <p>Deep Learning (LSTM/CNN) & Anomaly Detection Pipeline • KSOU Final Year Project</p>
+                </div>
+                <div class="header-actions">
+                    <div class="live-pill"><span class="pulse-dot"></span> LIVE TRAFFIC STREAM</div>
+                    <button class="btn btn-outline" id="pauseStreamBtn"><i class="fa-solid fa-pause"></i> Pause Stream</button>
+                </div>
+            </header>
+
+            <!-- Metrics Overview Bar -->
+            <section class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue"><i class="fa-solid fa-network-wired"></i></div>
+                    <div class="stat-details">
+                        <span class="stat-title">Total Packets Processed</span>
+                        <h3 id="statTotalEvents">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-green"><i class="fa-solid fa-check-shield"></i></div>
+                    <div class="stat-details">
+                        <span class="stat-title">Benign Traffic</span>
+                        <h3 id="statNormalCount">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-details">
+                        <span class="stat-title">Attacks Intercepted</span>
+                        <h3 id="statAttackCount">0</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-orange"><i class="fa-solid fa-gauge-high"></i></div>
+                    <div class="stat-details">
+                        <span class="stat-title">Current Threat Index</span>
+                        <h3 id="statThreatScore">0.0</h3>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interactive Attack Simulator Control Console -->
+            <section id="simulator" class="panel simulator-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-crosshairs text-accent"></i> Real-time Network Attack Injection Simulator</h3>
+                    <span class="badge badge-accent">Live Controller</span>
+                </div>
+                <div class="simulator-buttons">
+                    <button class="btn-attack btn-dos" onclick="triggerAttack('DoS')">
+                        <i class="fa-solid fa-burst"></i> DoS Attack (T1499)
+                    </button>
+                    <button class="btn-attack btn-ddos" onclick="triggerAttack('DDoS')">
+                        <i class="fa-solid fa-radiation"></i> DDoS Attack (T1498)
+                    </button>
+                    <button class="btn-attack btn-portscan" onclick="triggerAttack('PortScan')">
+                        <i class="fa-solid fa-radar"></i> Port Scan (T1046)
+                    </button>
+                    <button class="btn-attack btn-bruteforce" onclick="triggerAttack('BruteForce')">
+                        <i class="fa-solid fa-key"></i> Brute-Force (T1110)
+                    </button>
+                    <button class="btn-attack btn-mitm" onclick="triggerAttack('ARP Spoofing / MITM')">
+                        <i class="fa-solid fa-user-secret"></i> ARP Spoof / MITM (T1557)
+                    </button>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-grid">
+                <div class="panel chart-panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-chart-area"></i> Real-Time Network Threat Score Timeline</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel chart-panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-chart-pie"></i> Attack Category Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MITRE ATT&CK Matrix Grid -->
+            <section id="mitre" class="panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-table-cells"></i> MITRE ATT&CK & Cyber Kill Chain Framework Alignment</h3>
+                    <span class="badge badge-info">Standardized Matrix</span>
+                </div>
+                <div class="mitre-grid">
+                    <div class="mitre-card" id="mitre-T1046">
+                        <div class="mitre-stage">Reconnaissance</div>
+                        <h4>T1046: Service Discovery</h4>
+                        <p>Port Scanning & Probing</p>
+                        <span class="count-badge" id="count-PortScan">0 Detected</span>
+                    </div>
+
+                    <div class="mitre-card" id="mitre-T1110">
+                        <div class="mitre-stage">Credential Access</div>
+                        <h4>T1110: Brute Force</h4>
+                        <p>Auth Attempt Flooding</p>
+                        <span class="count-badge" id="count-BruteForce">0 Detected</span>
+                    </div>
+
+                    <div class="mitre-card" id="mitre-T1557">
+                        <div class="mitre-stage">Credential Access / Collection</div>
+                        <h4>T1557: MITM / ARP Spoof</h4>
+                        <p>Protocol Binding Poisoning</p>
+                        <span class="count-badge" id="count-MITM">0 Detected</span>
+                    </div>
+
+                    <div class="mitre-card" id="mitre-T1499">
+                        <div class="mitre-stage">Actions on Objectives</div>
+                        <h4>T1499: Endpoint DoS</h4>
+                        <p>Single Source Resource Exhaustion</p>
+                        <span class="count-badge" id="count-DoS">0 Detected</span>
+                    </div>
+
+                    <div class="mitre-card" id="mitre-T1498">
+                        <div class="mitre-stage">Actions on Objectives</div>
+                        <h4>T1498: Network DDoS</h4>
+                        <p>Multi-Source Volumetric Flood</p>
+                        <span class="count-badge" id="count-DDoS">0 Detected</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Alert Stream Table -->
+            <section id="alerts" class="panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-list-check"></i> Live Security Events & Interceptions</h3>
+                    <div class="filter-box">
+                        <input type="text" id="alertSearch" placeholder="Filter alerts by IP or attack type...">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="alert-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Event ID</th>
+                                <th>Source IP → Dest IP</th>
+                                <th>Protocol</th>
+                                <th>Classification</th>
+                                <th>Threat Score</th>
+                                <th>Severity</th>
+                                <th>MITRE ATT&CK</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertTableBody">
+                            <tr>
+                                <td colspan="9" class="text-center">Awaiting live network stream data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Model Training & Performance Evaluation Metrics Section -->
+            <section id="metrics" class="panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-microchip"></i> Machine Learning & Deep Learning Model Performance Evaluation</h3>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <h4>Deep Learning Flow Model (LSTM/CNN)</h4>
+                        <div class="metric-stats" id="dlModelMetrics">
+                            <div><span>Accuracy:</span> <strong id="m-dl-acc">--</strong></div>
+                            <div><span>Precision:</span> <strong id="m-dl-prec">--</strong></div>
+                            <div><span>Recall:</span> <strong id="m-dl-rec">--</strong></div>
+                            <div><span>F1-Score:</span> <strong id="m-dl-f1">--</strong></div>
+                            <div><span>FPR:</span> <strong id="m-dl-fpr">--</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-box">
+                        <h4>Random Forest Protocol Anomaly Detector</h4>
+                        <div class="metric-stats" id="rfModelMetrics">
+                            <div><span>Accuracy:</span> <strong id="m-rf-acc">--</strong></div>
+                            <div><span>Precision:</span> <strong id="m-rf-prec">--</strong></div>
+                            <div><span>Recall:</span> <strong id="m-rf-rec">--</strong></div>
+                            <div><span>F1-Score:</span> <strong id="m-rf-f1">--</strong></div>
+                            <div><span>FPR:</span> <strong id="m-rf-fpr">--</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Alert Inspection Modal -->
+    <div class="modal-overlay" id="alertModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-circle-info"></i> Security Event Detail Inspection</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
