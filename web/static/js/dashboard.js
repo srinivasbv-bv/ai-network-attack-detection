@@ -77,24 +77,50 @@ function initCharts() {
 }
 
 function initSSE() {
-    eventSource = new EventSource("/api/stream");
+    try {
+        eventSource = new EventSource("/api/stream");
 
-    eventSource.onmessage = (e) => {
+        eventSource.onmessage = (e) => {
+            if (isPaused) return;
+
+            const payload = JSON.parse(e.data);
+            const event = payload.event;
+            const stats = payload.stats;
+
+            updateStats(stats);
+            addAlertToTable(event);
+            updateCharts(event, stats);
+            updateMitreMatrix(event);
+        };
+
+        eventSource.onerror = () => {
+            console.warn("SSE connection closed or timed out. Switching to HTTP polling fallback...");
+            if (eventSource) eventSource.close();
+            startPollingFallback();
+        };
+    } catch (err) {
+        console.warn("SSE initialization error. Using HTTP polling fallback...");
+        startPollingFallback();
+    }
+}
+
+let pollingInterval = null;
+function startPollingFallback() {
+    if (pollingInterval) return;
+    pollingInterval = setInterval(() => {
         if (isPaused) return;
-
-        const payload = JSON.parse(e.data);
-        const event = payload.event;
-        const stats = payload.stats;
-
-        updateStats(stats);
-        addAlertToTable(event);
-        updateCharts(event, stats);
-        updateMitreMatrix(event);
-    };
-
-    eventSource.onerror = () => {
-        console.warn("SSE connection interrupted. Reconnecting...");
-    };
+        fetch("/api/next_event")
+            .then(res => res.json())
+            .then(payload => {
+                if (payload.event && payload.stats) {
+                    updateStats(payload.stats);
+                    addAlertToTable(payload.event);
+                    updateCharts(payload.event, payload.stats);
+                    updateMitreMatrix(payload.event);
+                }
+            })
+            .catch(err => console.warn("Polling fallback error:", err));
+    }, 1500);
 }
 
 function toggleStream() {

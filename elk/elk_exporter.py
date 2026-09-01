@@ -14,10 +14,16 @@ class ELKExporter:
         self.elasticsearch_url = elasticsearch_url
 
         if log_dir is None:
-            log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
+            try:
+                log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
+                os.makedirs(log_dir, exist_ok=True)
+            except Exception:
+                log_dir = "/tmp"
 
-        os.makedirs(log_dir, exist_ok=True)
-        self.local_log_file = os.path.join(log_dir, "network_security_events.json")
+        try:
+            self.local_log_file = os.path.join(log_dir, "network_security_events.json")
+        except Exception:
+            self.local_log_file = None
 
     def format_ecs(self, alert_event):
         """Converts internal security event to Elastic Common Schema (ECS 8.x format)."""

@@ -27,9 +27,11 @@ def index():
 @app.route("/api/stream")
 def stream_traffic():
     def generate():
-        while True:
+        # Cap iterations on serverless platforms (e.g. Vercel) to prevent Function Timeout
+        max_iters = 5 if os.environ.get("VERCEL") else 300
+        count = 0
+        while count < max_iters:
             event = simulator.generate_next_event()
-            # Export event to ECS JSON & ELK
             exporter.export_event(event)
 
             data = {
@@ -37,9 +39,16 @@ def stream_traffic():
                 "stats": simulator.get_stats()
             }
             yield f"data: {json.dumps(data)}\n\n"
-            time.sleep(1.0) # Send 1 event per second
+            count += 1
+            time.sleep(1.0)
 
     return Response(generate(), mimetype="text/event-stream")
+
+@app.route("/api/next_event", methods=["GET"])
+def next_event():
+    event = simulator.generate_next_event()
+    exporter.export_event(event)
+    return jsonify({"event": event, "stats": simulator.get_stats()})
 
 @app.route("/api/trigger_attack", methods=["POST"])
 def trigger_attack():
