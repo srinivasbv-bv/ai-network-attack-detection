@@ -6,17 +6,29 @@ class AnomalyDetector:
     Protocol-Level Machine Learning Anomaly Detector (Random Forest).
     Monitors IP-MAC binding changes, gratuitous ARP reply rates, and conflict counts
     to identify low-volume ARP Spoofing / MITM attacks.
-    Includes deterministic fallback rules for serverless environments (e.g. Vercel).
+    Uses lazy loading and deterministic mathematical decision engine for serverless environments.
     """
     CLASSES = ["Normal ARP", "ARP Spoofing / MITM"]
 
     def __init__(self, model_dir):
-        model_path = os.path.join(model_dir, "rf_arp_model.joblib")
-        scaler_path = os.path.join(model_dir, "arp_scaler.joblib")
-
+        self.model_dir = model_dir
         self.model = None
         self.scaler = None
+        self.tried_loading = False
         self.is_loaded = False
+
+    def _load_model(self):
+        if self.tried_loading:
+            return
+        self.tried_loading = True
+
+        # On Vercel serverless, use deterministic rule engine to avoid Python pickle version mismatch
+        if os.environ.get("VERCEL"):
+            self.is_loaded = False
+            return
+
+        model_path = os.path.join(self.model_dir, "rf_arp_model.joblib")
+        scaler_path = os.path.join(self.model_dir, "arp_scaler.joblib")
 
         if os.path.exists(model_path) and os.path.exists(scaler_path):
             try:
@@ -24,8 +36,8 @@ class AnomalyDetector:
                 self.model = joblib.load(model_path)
                 self.scaler = joblib.load(scaler_path)
                 self.is_loaded = True
-            except Exception as e:
-                print(f"[AnomalyDetector] Serverless joblib load fallback triggered: {e}")
+            except BaseException as e:
+                print(f"[AnomalyDetector] Joblib load fallback: {e}")
                 self.is_loaded = False
 
     def predict(self, arp_vector):
@@ -33,6 +45,8 @@ class AnomalyDetector:
         Input: 2D numpy array of ARP protocol metrics (1, 5)
         Features: [arp_request_rate, arp_reply_rate, arp_reply_req_ratio, mac_change_rate, ip_mac_binding_conflicts]
         """
+        self._load_model()
+
         if self.is_loaded:
             try:
                 scaled_vector = self.scaler.transform(arp_vector)
@@ -53,7 +67,7 @@ class AnomalyDetector:
             except Exception as e:
                 print(f"[AnomalyDetector] Predict exception, using mathematical fallback: {e}")
 
-        # Deterministic Mathematical Rule Engine (Ensures 100% reliability on Vercel Serverless)
+        # Deterministic Mathematical Rule Engine (100% reliable across all Python/serverless runtimes)
         feats = arp_vector[0]
         req_rate, rep_rate, ratio, mac_changes, conflicts = feats
 
