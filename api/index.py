@@ -1,6 +1,8 @@
 import os
 import sys
 
+os.environ["VERCEL"] = "1"
+
 # Add root directory to sys.path for Vercel Serverless environment
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
@@ -8,5 +10,5 @@ if BASE_DIR not in sys.path:
 
 from web.app import app
 
-# Vercel requires 'app' WSGI object
-__all__ = ["app"]
+# Vercel WSGI Handler
+app = app
