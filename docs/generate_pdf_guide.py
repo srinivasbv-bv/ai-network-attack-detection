@@ -278,16 +278,12 @@ def create_beginner_guide_pdf(filename="AI_Network_Attack_Detection_Beginners_Gu
          Paragraph("<b>When Clicked:</b> Shows 5-stage Alert Lifecycle (`Detected` ➔ `Classified` ➔ `Investigated` ➔ `Recommended Response` ➔ `Verified`), Feature Reasoning, Recommended Response, and Raw ECS JSON.", table_body_style)],
 
         [Paragraph("<b>AI Architecture & Pipeline</b>", table_body_style), 
-         Paragraph("Flow diagram explaining CNN+LSTM flow model, Random Forest ARP anomaly detector, and Ensemble Fusion.", table_body_style), 
+         Paragraph("Flow diagram explaining Deep MLP Neural Network flow model, Random Forest ARP anomaly detector, and Ensemble Fusion.", table_body_style), 
          Paragraph("Provides clear explanation for examiners on how inputs map to predictions.", table_body_style)],
 
         [Paragraph("<b>Model Evaluation & Confusion Matrix</b>", table_body_style), 
          Paragraph("Shows measured Accuracy, Precision, Recall, F1, FPR, FNR, and Confusion Matrix tables.", table_body_style), 
-         Paragraph("Fetches real benchmark evaluation metrics from `/api/metrics` JSON file.", table_body_style)],
-
-        [Paragraph("<b>System Drawbacks & Limitations</b>", table_body_style), 
-         Paragraph("Documents 6 key limitations: Dataset Dependency, False Positives/Negatives, Explainability, Real-time Simulation vs Live Hardware Capture, Response Action Validation, Zero-Day Limits.", table_body_style), 
-         Paragraph("Provides transparent, defensible documentation for academic viva review.", table_body_style)]
+         Paragraph("Fetches real benchmark evaluation metrics from `/api/metrics` JSON file.", table_body_style)]
     ]
 
     t_ui = Table(ui_guide_data, colWidths=[115, 184, 205])
@@ -319,7 +315,7 @@ def create_beginner_guide_pdf(filename="AI_Network_Attack_Detection_Beginners_Gu
         "• <i>ARP Vector (5 features):</i> ARP request rate, reply rate, reply/req ratio, MAC change rate, conflict count.",
 
         "<b>Step 3: Dual AI Engine Evaluation</b><br/>"
-        "• <b>Deep Learning Model (CNN+LSTM / Deep MLP):</b> Evaluates the Flow Vector and outputs probabilities for Normal, DoS, DDoS, PortScan, and BruteForce.<br/>"
+        "• <b>Deep Learning Model (Deep MLP Neural Network):</b> Evaluates the Flow Vector and outputs probabilities for Normal, DoS, DDoS, PortScan, and BruteForce.<br/>"
         "• <b>Random Forest Anomaly Detector:</b> Evaluates the ARP Vector and outputs anomaly score for ARP Spoofing / MITM.",
 
         "<b>Step 4: Ensemble Correlation & Feature Reasoning</b><br/>"

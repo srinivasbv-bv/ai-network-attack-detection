@@ -520,6 +520,11 @@ function inspectAlert(eventId) {
             <p>${event.recommended_response || 'No immediate response required.'}</p>
         </div>
 
+        <div class="cmd-box">
+            <h5><i class="fa-solid fa-terminal"></i> Active Firewall & Automated Mitigation Command</h5>
+            <pre class="cmd-code">${event.active_mitigation_cmd || '# No blocking command needed'}</pre>
+        </div>
+
         <h4 style="margin-top: 14px; color: var(--accent-blue);">Raw Elastic Common Schema (ECS) Payload</h4>
         <pre class="raw-json">${JSON.stringify(event, null, 2)}</pre>
     `;

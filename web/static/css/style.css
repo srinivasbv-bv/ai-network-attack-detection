@@ -852,3 +852,27 @@ pre.raw-json {
     color: #00e5ff;
     overflow-x: auto;
 }
+
+.cmd-box {
+    background: rgba(121, 40, 202, 0.08);
+    border-left: 3px solid var(--accent-purple);
+    padding: 10px 12px;
+    border-radius: 4px;
+}
+
+.cmd-box h5 {
+    font-size: 11.5px;
+    margin-bottom: 6px;
+    color: #b784f5;
+}
+
+pre.cmd-code {
+    background: #090d16;
+    border: 1px solid var(--panel-border);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #00e676;
+    overflow-x: auto;
+}

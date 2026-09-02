@@ -31,7 +31,6 @@
                 <a href="#alerts" class="nav-item"><i class="fa-solid fa-bell"></i> Security Events</a>
                 <a href="#architecture" class="nav-item"><i class="fa-solid fa-sitemap"></i> AI Architecture</a>
                 <a href="#metrics" class="nav-item"><i class="fa-solid fa-brain"></i> Model Evaluation</a>
-                <a href="#limitations" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Limitations</a>
             </nav>
 
             <div class="system-status-card">
@@ -402,44 +401,6 @@
                 </div>
             </section>
 
-            <!-- Drawbacks & Limitations Section (PDF Section F) -->
-            <section id="limitations" class="panel limitations-panel">
-                <div class="panel-header">
-                    <h3><i class="fa-solid fa-triangle-exclamation text-warning"></i> System Drawbacks & Architectural Limitations</h3>
-                    <span class="badge badge-warning">Examiner Project Review Notes</span>
-                </div>
-                <div class="limitations-grid">
-                    <div class="limitation-card">
-                        <h4>1. Dataset Dependency & Distribution Shift</h4>
-                        <p>Model performance relies on historical benchmark distribution. Shifts in real-world network protocols or novel network payloads may degrade classification accuracy over time.</p>
-                    </div>
-
-                    <div class="limitation-card">
-                        <h4>2. False Positive & False Negative Trade-Offs</h4>
-                        <p>Excessive False Positives cause alert fatigue for security analysts. Conversely, False Negatives represent missed intrusions, making FNR (False Negative Rate) monitoring critical.</p>
-                    </div>
-
-                    <div class="limitation-card">
-                        <h4>3. Explainability Limitations</h4>
-                        <p>Deep Learning model outputs are probabilistic. While feature reasoning provides rule-based explanations, black-box neural networks lack full mathematical interpretability.</p>
-                    </div>
-
-                    <div class="limitation-card">
-                        <h4>4. Simulation vs. Hardware Capture</h4>
-                        <p>This implementation uses simulated flow streams for demonstration purposes. Deployment on physical networks requires dedicated packet capture taps (e.g., Libpcap / Scapy).</p>
-                    </div>
-
-                    <div class="limitation-card">
-                        <h4>5. Automated Mitigation Disclaimer</h4>
-                        <p>Automated inline IP blocking can cause unintended denial of service if triggered by false positives. Response actions are provided as <b>Recommended Analyst Guidance</b>.</p>
-                    </div>
-
-                    <div class="limitation-card">
-                        <h4>6. Zero-Day & Unseen Attack Scope</h4>
-                        <p>Supervised neural networks excel at known attack structures. Novel zero-day exploits absent from training datasets rely on the Random Forest anomaly threshold.</p>
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 

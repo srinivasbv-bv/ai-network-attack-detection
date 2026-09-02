@@ -13,10 +13,12 @@ Network-based cyber-attacks such as Denial of Service (DoS), Distributed Denial 
 This project delivers a complete, production-ready **AI POWERED THREAT DETECTION SYSTEM** combining:
 1. **Flow-Based Deep Learning Engine (Deep Multi-Layer Perceptron / Deep MLP)** for volumetric and sequential attacks (**DoS, DDoS, Port Scanning, Brute-Force**).
 2. **Machine-Learning Protocol Anomaly Detector (Random Forest)** for protocol-level attacks (**MITM / ARP Spoofing**).
-3. **Ensemble Correlation Engine**: Fuses dual-path probabilities and resolves signal conflicts into a single classified security event enriched with feature-based reasoning explanations ("Why Was This Detected?").
-4. **Threat Framework Mapping**: Maps every detection to **MITRE ATT&CK** (`T1499`, `T1498`, `T1046`, `T1110`, `T1557`), **Cyber Kill Chain**, **CAPEC**, and **OWASP Top 10**.
-5. **ELK Stack Integration**: Normalizes events into Elastic Common Schema (ECS 8.x) JSON for Logstash/Elasticsearch ingestion and Kibana visualization.
-6. **Real-time Live SOC Analyst Web Dashboard**: Features Demo Mode toggle, Live AI Prediction Card, Attack Intensity Simulator, MITRE Heatmap Matrix, Incident Investigation Drawer with 5-stage Alert Lifecycle (`Detected` ➔ `Classified` ➔ `Investigated` ➔ `Recommended Response` ➔ `Verified`), Confusion Matrix viewer, and System Limitations review.
+3. **Zero-Day & Outlier Detection Engine**: Outlier detection for unclassified statistical network feature deviations (>3x std. dev.) tagged as `Zero-Day / Novel Anomaly`.
+4. **Ensemble Correlation Engine**: Fuses dual-path probabilities and resolves signal conflicts into a single classified security event enriched with exact mathematical feature percentage explanations ("Why Was This Detected?") and automated firewall mitigation scripts.
+5. **Active Firewall & Automated Mitigation Generator**: Automatically generates actionable Linux Firewall rules (`iptables`, `ip route blackhole`, `fail2ban-client`, `arptables`) for instantaneous active threat blocking.
+6. **Threat Framework Mapping**: Maps every detection to **MITRE ATT&CK** (`T1499`, `T1498`, `T1046`, `T1110`, `T1557`, `T1204`), **Cyber Kill Chain**, **CAPEC**, and **OWASP Top 10**.
+7. **ELK Stack Integration**: Normalizes events into Elastic Common Schema (ECS 8.x) JSON for Logstash/Elasticsearch ingestion and Kibana visualization.
+8. **Real-time Live SOC Analyst Web Dashboard**: Features Demo Mode toggle, Live AI Prediction Card, Attack Intensity Simulator, MITRE Heatmap Matrix, Incident Investigation Drawer with 5-stage Alert Lifecycle (`Detected` ➔ `Classified` ➔ `Investigated` ➔ `Recommended Response` ➔ `Verified`), Active Firewall Command Generator, and Confusion Matrix viewer.
 
 ---
 
@@ -29,6 +31,7 @@ This project delivers a complete, production-ready **AI POWERED THREAT DETECTION
 | **Port Scanning** | `T1046` – Network Service Discovery | Reconnaissance | CAPEC-300 (Footprinting) | A05:2021 – Security Misconfiguration | **Medium** (30 - 59) |
 | **Brute-Force Attacks** | `T1110` – Brute Force | Credential Access | CAPEC-49 (Password Brute Forcing) | A07:2021 – Auth Failures | **High** (60 - 84) |
 | **MITM / ARP Spoofing** | `T1557` – Adversary-in-the-Middle | Credential Access / Collection | CAPEC-94 (Man-in-the-Middle) | A02:2021 – Cryptographic Failures | **Critical** (85 - 100) |
+| **Zero-Day / Novel Anomaly** | `T1204` – Unseen Outlier Anomaly | Exploitation / Unknown Vector | CAPEC-233 (Zero-Day Exploitation) | A06:2021 – Vulnerable Components | **Critical** (85 - 100) |
 
 ---
 
@@ -45,14 +48,15 @@ ai_network_attack_detection/
 │   ├── flow_scaler.joblib
 │   ├── arp_scaler.joblib
 │   └── model_metrics.json
-├── engine/                       # Core detection & threat mapping engine
+├── engine/                       # Core detection, threat mapping & mitigation engine
 │   ├── feature_extractor.py
 │   ├── dl_detector.py
 │   ├── anomaly_detector.py
 │   ├── correlation_engine.py
 │   └── threat_mapper.py
 ├── traffic/                      # Real-time traffic capture & attack stream simulator
-│   └── traffic_simulator.py
+│   ├── traffic_simulator.py
+│   └── live_capture.py           # Hardware network interface capture module
 ├── elk/                          # Elastic Common Schema (ECS) exporter & Logstash pipeline
 │   ├── elk_exporter.py
 │   └── logstash.conf

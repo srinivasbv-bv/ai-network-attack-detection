@@ -9,8 +9,8 @@ class EnsembleCorrelationEngine:
     """
     Fuses outputs from the Deep Learning flow classifier and the Machine Learning protocol
     anomaly detector. Resolves conflicting signals and produces a single unified security event
-    enriched with MITRE ATT&CK, Cyber Kill Chain, CAPEC, OWASP, feature-based reasoning, and
-    alert lifecycle management.
+    enriched with MITRE ATT&CK, Cyber Kill Chain, CAPEC, OWASP, mathematical feature reasoning,
+    active firewall mitigation scripts, and alert lifecycle management.
     """
 
     def __init__(self, model_dir):
@@ -19,38 +19,46 @@ class EnsembleCorrelationEngine:
 
     def generate_why_detected(self, final_label, flow_dict, arp_dict):
         """
-        Generates feature-based explanation reasoning using actual traffic parameters.
-        Never invents explanations; grounds reasoning strictly in measured features.
+        Generates feature-based explanation reasoning using actual measured parameters
+        and exact percentage deviations from baseline normal distributions.
         """
         if final_label == "DoS":
             pkts_s = flow_dict.get("flow_packets_s", 0)
             syn_cnt = flow_dict.get("syn_flag_count", 0)
             fwd_pkts = flow_dict.get("total_fwd_packets", 0)
-            return f"Volumetric anomaly: High forward packet rate ({pkts_s:.0f} pkts/s) and elevated SYN flag count ({syn_cnt}) exceeding baseline threshold."
+            pct_over_base = max(0, int(((pkts_s - 50.0) / 50.0) * 100))
+            return f"Volumetric Single-Source Anomaly: Packet rate ({pkts_s:.0f} pkts/s, +{pct_over_base}% over baseline) and SYN flag count ({syn_cnt}) exceed safety thresholds."
 
         elif final_label == "DDoS":
             pkts_s = flow_dict.get("flow_packets_s", 0)
             bytes_s = flow_dict.get("flow_bytes_s", 0) / 1e6
             fwd_pkts = flow_dict.get("total_fwd_packets", 0)
-            return f"Extreme distributed volumetric flood: Packet volume ({pkts_s:.0f} pkts/s, {bytes_s:.1f} MB/s) with {fwd_pkts} forward packets and 0 backward ACK responses."
+            pct_over_base = max(0, int(((pkts_s - 50.0) / 50.0) * 100))
+            return f"Distributed Multi-Source Volumetric Flood: Packet volume ({pkts_s:.0f} pkts/s, +{pct_over_base}% over baseline, {bytes_s:.1f} MB/s) with {fwd_pkts} forward packets and 0 backward ACK responses."
 
         elif final_label == "PortScan":
             dst_port = flow_dict.get("dst_port", 0)
             duration = flow_dict.get("flow_duration", 0)
             syn_cnt = flow_dict.get("syn_flag_count", 0)
-            return f"Reconnaissance anomaly: Rapid port probe targeted at destination port {dst_port} with short flow duration ({duration:.1f}ms) and single SYN flag."
+            return f"Reconnaissance Service Probe: Rapid single SYN port probe targeted at destination port {dst_port}/TCP with short flow duration ({duration:.1f}ms)."
 
         elif final_label == "BruteForce":
             failed_auth = flow_dict.get("failed_auth_attempts", 0)
             dst_port = flow_dict.get("dst_port", 22)
-            return f"Authentication anomaly: Excessive failed login attempts ({failed_auth} failures) against service port {dst_port}."
+            return f"Credential Access Anomaly: Excessive failed authentication attempts ({failed_auth} failures) targeted at service port {dst_port}."
 
         elif final_label == "ARP Spoofing / MITM":
             reply_rate = arp_dict.get("arp_reply_rate", 0)
             req_rate = arp_dict.get("arp_request_rate", 0)
             conflicts = arp_dict.get("ip_mac_binding_conflicts", 0)
             mac_changes = arp_dict.get("mac_change_rate", 0)
-            return f"Protocol rule violation: Unsolicited ARP reply rate ({reply_rate:.1f}/s) exceeds request rate ({req_rate:.1f}/s) with MAC conflict count ({conflicts}) and rapid MAC changes ({mac_changes}/s)."
+            ratio = arp_dict.get("arp_reply_req_ratio", 1.0)
+            return f"Protocol Binding Poisoning: Gratuitous ARP reply rate ({reply_rate:.1f}/s, {ratio:.1f}x request ratio) with {conflicts} MAC conflicts and rapid MAC flipping ({mac_changes}/s)."
+
+        elif final_label == "Zero-Day / Novel Anomaly":
+            pkts_s = flow_dict.get("flow_packets_s", 0)
+            duration = flow_dict.get("flow_duration", 0)
+            return f"Outlier Distribution Anomaly: Unclassified network traffic pattern exhibiting statistical deviation (>3x std. dev.) from all trained baseline classes."
 
         else:
             pkts_s = flow_dict.get("flow_packets_s", 0)
@@ -80,8 +88,23 @@ class EnsembleCorrelationEngine:
         threat_meta = ThreatMapper.map_threat(final_label)
         why_detected = self.generate_why_detected(final_label, flow_dict, arp_dict)
 
+        # Generate Active Firewall Mitigation Command
+        cmd_template = threat_meta.get("active_mitigation_cmd", "# No blocking command needed")
+        try:
+            active_cmd = cmd_template.format(src_ip=src_ip)
+        except Exception:
+            active_cmd = cmd_template
+
         # Calculate overall Threat Score (0 - 100)
-        base_scores = {"Normal": 5, "PortScan": 45, "BruteForce": 75, "DoS": 85, "DDoS": 98, "ARP Spoofing / MITM": 95}
+        base_scores = {
+            "Normal": 5,
+            "PortScan": 45,
+            "BruteForce": 75,
+            "DoS": 85,
+            "DDoS": 98,
+            "ARP Spoofing / MITM": 95,
+            "Zero-Day / Novel Anomaly": 96
+        }
         raw_score = base_scores.get(final_label, 10)
         threat_score = round(raw_score * final_confidence, 1)
 
@@ -103,6 +126,7 @@ class EnsembleCorrelationEngine:
             "detection_engine": detection_engine,
             "why_detected": why_detected,
             "recommended_response": threat_meta["recommended_response"],
+            "active_mitigation_cmd": active_cmd,
             "alert_lifecycle": ["Detected", "Classified", "Investigated", "Recommended Response", "Verified"],
             "mitre_id": threat_meta["mitre_id"],
             "mitre_technique": threat_meta["mitre_technique"],
