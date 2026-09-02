@@ -8,7 +8,7 @@ sys.path.append(BASE_DIR)
 def check_and_prepare_environment():
     """Verifies that datasets and trained models are present before launching."""
     print("=========================================================================")
-    print(" AI-POWERED NETWORK ATTACK DETECTION SYSTEM USING DEEP LEARNING & ANOMALY")
+    print(" AI POWERED THREAT DETECTION SYSTEM")
     print(" MCA Final Year Project • Karnataka State Open University (KSOU)")
     print("=========================================================================\n")
 

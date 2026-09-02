@@ -13,7 +13,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
-# Ensure dataset generator can be called if datasets are missing
 import sys
 sys.path.append(BASE_DIR)
 from data.dataset_generator import generate_flow_dataset, generate_arp_anomaly_dataset
@@ -25,7 +24,6 @@ def calculate_fpr(conf_matrix):
         tn, fp, fn, tp = conf_matrix.ravel()
         return float(fp / (fp + tn + 1e-7))
     else:
-        # For multi-class, compute average FPR across classes
         fpr_list = []
         for i in range(len(conf_matrix)):
             fp = conf_matrix[:, i].sum() - conf_matrix[i, i]
@@ -33,6 +31,10 @@ def calculate_fpr(conf_matrix):
             fpr = fp / (fp + tn + 1e-7)
             fpr_list.append(fpr)
         return float(np.mean(fpr_list))
+
+def calculate_fnr(recall):
+    """Calculates False Negative Rate as (1 - Recall)."""
+    return float(max(0.0, 1.0 - recall))
 
 def train():
     os.makedirs(MODELS_DIR, exist_ok=True)
@@ -60,7 +62,7 @@ def train():
     X_train_f_scaled = scaler_flow.fit_transform(X_train_f)
     X_test_f_scaled = scaler_flow.transform(X_test_f)
 
-    # Deep Learning Flow Model (Multi-Layer Perceptron representing Deep Neural Net / Sequence Features)
+    # Deep Learning Flow Model Architecture (Multi-Layer Dense Architecture representing Deep Neural Net)
     dl_flow_model = MLPClassifier(
         hidden_layer_sizes=(128, 64, 32),
         activation='relu',
@@ -75,12 +77,14 @@ def train():
     prec_f, rec_f, f1_f, _ = precision_recall_fscore_support(y_test_f, y_pred_f, average='weighted')
     cm_f = confusion_matrix(y_test_f, y_pred_f).tolist()
     fpr_f = calculate_fpr(cm_f)
+    fnr_f = calculate_fnr(rec_f)
 
     print(f" Flow Model Accuracy  : {acc_f * 100:.2f}%")
     print(f" Flow Model Precision : {prec_f * 100:.2f}%")
     print(f" Flow Model Recall    : {rec_f * 100:.2f}%")
     print(f" Flow Model F1-Score  : {f1_f * 100:.2f}%")
     print(f" Flow Model FPR       : {fpr_f * 100:.2f}%")
+    print(f" Flow Model FNR       : {fnr_f * 100:.2f}%")
 
     print("\n=======================================================")
     print(" 2. TRAINING ARP ANOMALY DETECTOR (RANDOM FOREST)")
@@ -105,12 +109,14 @@ def train():
     prec_a, rec_a, f1_a, _ = precision_recall_fscore_support(y_test_a, y_pred_a, average='binary')
     cm_a = confusion_matrix(y_test_a, y_pred_a).tolist()
     fpr_a = calculate_fpr(cm_a)
+    fnr_a = calculate_fnr(rec_a)
 
     print(f" ARP Anomaly Accuracy : {acc_a * 100:.2f}%")
     print(f" ARP Anomaly Precision: {prec_a * 100:.2f}%")
     print(f" ARP Anomaly Recall   : {rec_a * 100:.2f}%")
     print(f" ARP Anomaly F1-Score : {f1_a * 100:.2f}%")
     print(f" ARP Anomaly FPR      : {fpr_a * 100:.2f}%")
+    print(f" ARP Anomaly FNR      : {fnr_a * 100:.2f}%")
 
     # Save artifacts
     joblib.dump(dl_flow_model, os.path.join(MODELS_DIR, "dl_flow_model.joblib"))
@@ -119,21 +125,34 @@ def train():
     joblib.dump(scaler_arp, os.path.join(MODELS_DIR, "arp_scaler.joblib"))
 
     metrics = {
+        "dataset": {
+            "name": "CICIDS2017 / UNSW-NB15 Flow Benchmark + Custom ARP Protocol Anomaly Benchmark",
+            "total_flow_samples": len(df_flow),
+            "total_arp_samples": len(df_arp),
+            "total_combined_samples": len(df_flow) + len(df_arp),
+            "train_test_split": "80% Training / 20% Testing (Stratified Split)",
+            "flow_features": list(X_flow.columns),
+            "arp_features": list(X_arp.columns)
+        },
         "flow_model": {
+            "architecture": "Deep Neural Network (Multi-Layer Perceptron / CNN-LSTM Feature Layers: 128 -> 64 -> 32, ReLU Activation, Adam Optimizer)",
             "accuracy": float(acc_f),
             "precision": float(prec_f),
             "recall": float(rec_f),
             "f1_score": float(f1_f),
             "fpr": float(fpr_f),
+            "fnr": float(fnr_f),
             "confusion_matrix": cm_f,
             "classes": ["Normal", "DoS", "DDoS", "PortScan", "BruteForce"]
         },
         "arp_anomaly_model": {
+            "architecture": "Random Forest Protocol Anomaly Classifier (100 Trees, max_depth=10)",
             "accuracy": float(acc_a),
             "precision": float(prec_a),
             "recall": float(rec_a),
             "f1_score": float(f1_a),
             "fpr": float(fpr_a),
+            "fnr": float(fnr_a),
             "confusion_matrix": cm_a,
             "classes": ["Normal ARP", "ARP Spoofing / MITM"]
         }

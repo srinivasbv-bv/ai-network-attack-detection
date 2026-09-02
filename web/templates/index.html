@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Network Attack Detection System | SOC Analyst Console</title>
+    <title>AI POWERED THREAT DETECTION SYSTEM | SOC Analyst Console</title>
     <!-- Font Awesome Icons & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -18,25 +18,27 @@
             <div class="brand">
                 <i class="fa-solid fa-shield-halved brand-icon"></i>
                 <div class="brand-text">
-                    <h2>AI-IDS SOC</h2>
-                    <span>Deep Learning Guard</span>
+                    <h2>AI THREAT DETECT</h2>
+                    <span>SOC Intrusion Engine</span>
                 </div>
             </div>
 
             <nav class="nav-menu">
                 <a href="#dashboard" class="nav-item active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="#mitre" class="nav-item"><i class="fa-solid fa-cubes"></i> MITRE ATT&CK</a>
+                <a href="#live-prediction" class="nav-item"><i class="fa-solid fa-satellite-dish"></i> Live Prediction</a>
                 <a href="#simulator" class="nav-item"><i class="fa-solid fa-bolt"></i> Attack Simulator</a>
-                <a href="#alerts" class="nav-item"><i class="fa-solid fa-bell"></i> Live Alerts</a>
-                <a href="#metrics" class="nav-item"><i class="fa-solid fa-brain"></i> Model Metrics</a>
-                <a href="#elk" class="nav-item"><i class="fa-solid fa-database"></i> ELK Integration</a>
+                <a href="#mitre" class="nav-item"><i class="fa-solid fa-cubes"></i> MITRE ATT&CK</a>
+                <a href="#alerts" class="nav-item"><i class="fa-solid fa-bell"></i> Security Events</a>
+                <a href="#architecture" class="nav-item"><i class="fa-solid fa-sitemap"></i> AI Architecture</a>
+                <a href="#metrics" class="nav-item"><i class="fa-solid fa-brain"></i> Model Evaluation</a>
+                <a href="#limitations" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Limitations</a>
             </nav>
 
             <div class="system-status-card">
-                <div class="status-indicator online"></div>
+                <div class="status-indicator demo" id="statusDot"></div>
                 <div class="status-info">
-                    <span class="status-label">Engine Status</span>
-                    <span class="status-val">Ensemble Active</span>
+                    <span class="status-label">System Mode</span>
+                    <span class="status-val" id="statusText">Demo Mode (Simulated)</span>
                 </div>
             </div>
         </aside>
@@ -46,12 +48,13 @@
             <!-- Header Bar -->
             <header class="top-header">
                 <div class="header-title">
-                    <h1>AI-Powered Network Attack Detection System</h1>
-                    <p>Deep Learning (LSTM/CNN) & Anomaly Detection Pipeline • KSOU Final Year Project</p>
+                    <h1>AI POWERED THREAT DETECTION SYSTEM</h1>
+                    <p>Deep Learning (CNN+LSTM) & Random Forest Protocol Anomaly Pipeline • SOC Analyst Monitoring Console</p>
                 </div>
                 <div class="header-actions">
-                    <div class="live-pill"><span class="pulse-dot"></span> LIVE TRAFFIC STREAM</div>
-                    <button class="btn btn-outline" id="pauseStreamBtn"><i class="fa-solid fa-pause"></i> Pause Stream</button>
+                    <div class="live-pill" id="livePill"><span class="pulse-dot"></span> DEMO STREAM ACTIVE</div>
+                    <button class="btn btn-outline" id="toggleDemoBtn"><i class="fa-solid fa-toggle-on"></i> Stop Demo Mode</button>
+                    <button class="btn btn-outline" id="pauseStreamBtn"><i class="fa-solid fa-pause"></i> Pause Feed</button>
                 </div>
             </header>
 
@@ -90,11 +93,66 @@
                 </div>
             </section>
 
-            <!-- Interactive Attack Simulator Control Console -->
+            <!-- Live AI Prediction & Feature Reasoning Card (PDF High Priority #2 & #3) -->
+            <section id="live-prediction" class="panel live-prediction-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-radar text-accent"></i> Live AI Prediction & Feature Reasoning Card</h3>
+                    <span class="badge badge-accent">Real-Time Model Inference</span>
+                </div>
+                <div class="prediction-card-grid">
+                    <div class="pred-item">
+                        <span class="pred-label">Source ➔ Destination</span>
+                        <div class="pred-val" id="predEndpoints">192.168.1.105 ➔ 192.168.1.1 (TCP)</div>
+                    </div>
+                    <div class="pred-item">
+                        <span class="pred-label">Classification</span>
+                        <div class="pred-val highlight" id="predClass">Awaiting event...</div>
+                    </div>
+                    <div class="pred-item">
+                        <span class="pred-label">Confidence Score</span>
+                        <div class="pred-val" id="predConfidence">-- %</div>
+                    </div>
+                    <div class="pred-item">
+                        <span class="pred-label">Threat Score & Severity</span>
+                        <div class="pred-val" id="predThreatScore">-- <span class="sev-badge sev-Informational" id="predSeverity">Low</span></div>
+                    </div>
+                    <div class="pred-item full-width">
+                        <span class="pred-label"><i class="fa-solid fa-circle-question"></i> Why Was This Detected? (Model Feature Reasoning)</span>
+                        <div class="why-detected-box" id="predWhyDetected">
+                            No event intercepted yet. Start Demo or Trigger an Attack to evaluate model feature reasoning.
+                        </div>
+                    </div>
+                    <div class="pred-item full-width">
+                        <span class="pred-label"><i class="fa-solid fa-list-check"></i> Key Traffic Feature Metrics</span>
+                        <div class="key-features-chips" id="predKeyFeatures">
+                            <span class="chip">Packet Rate: --</span>
+                            <span class="chip">Flow Duration: --</span>
+                            <span class="chip">Dst Port: --</span>
+                            <span class="chip">SYN Flags: --</span>
+                            <span class="chip">Auth Failures: --</span>
+                            <span class="chip">ARP Reply Ratio: --</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attack Simulator Control Console (PDF High Priority #1 & #7) -->
             <section id="simulator" class="panel simulator-panel">
                 <div class="panel-header">
-                    <h3><i class="fa-solid fa-crosshairs text-accent"></i> Real-time Network Attack Injection Simulator</h3>
-                    <span class="badge badge-accent">Live Controller</span>
+                    <h3><i class="fa-solid fa-crosshairs text-accent"></i> Real-Time Attack Vector Simulator</h3>
+                    <div class="simulator-meta">
+                        <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Simulation Mode: Safe Traffic Generation</span>
+                    </div>
+                </div>
+                <div class="simulator-controls-bar">
+                    <div class="sim-control-group">
+                        <label for="simIntensity">Attack Intensity:</label>
+                        <select id="simIntensity" class="select-input">
+                            <option value="Low">Low Intensity</option>
+                            <option value="Medium" selected>Medium Intensity</option>
+                            <option value="High">High Volumetric Intensity</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="simulator-buttons">
                     <button class="btn-attack btn-dos" onclick="triggerAttack('DoS')">
@@ -119,7 +177,8 @@
             <section class="charts-grid">
                 <div class="panel chart-panel">
                     <div class="panel-header">
-                        <h3><i class="fa-solid fa-chart-area"></i> Real-Time Network Threat Score Timeline</h3>
+                        <h3><i class="fa-solid fa-chart-area"></i> Real-Time Threat Score Timeline (0 - 100)</h3>
+                        <span class="range-info">Low: 0-29 | Medium: 30-59 | High: 60-84 | Critical: 85-100</span>
                     </div>
                     <div class="chart-container">
                         <canvas id="timelineChart"></canvas>
@@ -128,7 +187,7 @@
 
                 <div class="panel chart-panel">
                     <div class="panel-header">
-                        <h3><i class="fa-solid fa-chart-pie"></i> Attack Category Distribution</h3>
+                        <h3><i class="fa-solid fa-chart-pie"></i> Traffic Category Distribution</h3>
                     </div>
                     <div class="chart-container">
                         <canvas id="distributionChart"></canvas>
@@ -140,52 +199,68 @@
             <section id="mitre" class="panel">
                 <div class="panel-header">
                     <h3><i class="fa-solid fa-table-cells"></i> MITRE ATT&CK & Cyber Kill Chain Framework Alignment</h3>
-                    <span class="badge badge-info">Standardized Matrix</span>
+                    <span class="badge badge-info">Global Threat Matrix</span>
                 </div>
                 <div class="mitre-grid">
                     <div class="mitre-card" id="mitre-T1046">
                         <div class="mitre-stage">Reconnaissance</div>
                         <h4>T1046: Service Discovery</h4>
                         <p>Port Scanning & Probing</p>
-                        <span class="count-badge" id="count-PortScan">0 Detected</span>
+                        <span class="count-badge" id="count-PortScan">0 Intercepted</span>
                     </div>
 
                     <div class="mitre-card" id="mitre-T1110">
                         <div class="mitre-stage">Credential Access</div>
                         <h4>T1110: Brute Force</h4>
                         <p>Auth Attempt Flooding</p>
-                        <span class="count-badge" id="count-BruteForce">0 Detected</span>
+                        <span class="count-badge" id="count-BruteForce">0 Intercepted</span>
                     </div>
 
                     <div class="mitre-card" id="mitre-T1557">
                         <div class="mitre-stage">Credential Access / Collection</div>
                         <h4>T1557: MITM / ARP Spoof</h4>
                         <p>Protocol Binding Poisoning</p>
-                        <span class="count-badge" id="count-MITM">0 Detected</span>
+                        <span class="count-badge" id="count-MITM">0 Intercepted</span>
                     </div>
 
                     <div class="mitre-card" id="mitre-T1499">
                         <div class="mitre-stage">Actions on Objectives</div>
                         <h4>T1499: Endpoint DoS</h4>
                         <p>Single Source Resource Exhaustion</p>
-                        <span class="count-badge" id="count-DoS">0 Detected</span>
+                        <span class="count-badge" id="count-DoS">0 Intercepted</span>
                     </div>
 
                     <div class="mitre-card" id="mitre-T1498">
                         <div class="mitre-stage">Actions on Objectives</div>
                         <h4>T1498: Network DDoS</h4>
                         <p>Multi-Source Volumetric Flood</p>
-                        <span class="count-badge" id="count-DDoS">0 Detected</span>
+                        <span class="count-badge" id="count-DDoS">0 Intercepted</span>
                     </div>
                 </div>
             </section>
 
-            <!-- Live Alert Stream Table -->
+            <!-- Interactive Security Events Table & Filters (PDF Section B) -->
             <section id="alerts" class="panel">
                 <div class="panel-header">
-                    <h3><i class="fa-solid fa-list-check"></i> Live Security Events & Interceptions</h3>
-                    <div class="filter-box">
-                        <input type="text" id="alertSearch" placeholder="Filter alerts by IP or attack type...">
+                    <h3><i class="fa-solid fa-list-check"></i> Security Events Stream</h3>
+                    <div class="table-filters">
+                        <input type="text" id="alertSearch" placeholder="Search IP, ID, or Category..." class="filter-input">
+                        <select id="severityFilter" class="select-input">
+                            <option value="ALL">All Severities</option>
+                            <option value="Low">Low (0-29)</option>
+                            <option value="Medium">Medium (30-59)</option>
+                            <option value="High">High (60-84)</option>
+                            <option value="Critical">Critical (85-100)</option>
+                        </select>
+                        <select id="categoryFilter" class="select-input">
+                            <option value="ALL">All Categories</option>
+                            <option value="Normal">Normal</option>
+                            <option value="DoS">DoS</option>
+                            <option value="DDoS">DDoS</option>
+                            <option value="PortScan">PortScan</option>
+                            <option value="BruteForce">BruteForce</option>
+                            <option value="ARP Spoofing / MITM">ARP Spoofing / MITM</option>
+                        </select>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -212,43 +287,167 @@
                 </div>
             </section>
 
-            <!-- Model Training & Performance Evaluation Metrics Section -->
+            <!-- AI Architecture Explanation Panel (PDF High Priority #4, Section C & D) -->
+            <section id="architecture" class="panel architecture-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-sitemap"></i> AI Architecture & Ensemble Pipeline Explanation</h3>
+                </div>
+                <div class="arch-flow-diagram">
+                    <div class="arch-node">
+                        <i class="fa-solid fa-network-wired"></i>
+                        <span>Network / Simulated Traffic</span>
+                    </div>
+                    <div class="arch-arrow">➔</div>
+                    <div class="arch-node">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>Feature Extractor (12 Flow + 5 ARP)</span>
+                    </div>
+                    <div class="arch-arrow">➔</div>
+                    <div class="arch-node highlight-dl">
+                        <i class="fa-solid fa-brain"></i>
+                        <span>CNN + LSTM / Deep Flow Model</span>
+                    </div>
+                    <div class="arch-node highlight-rf">
+                        <i class="fa-solid fa-tree"></i>
+                        <span>Random Forest Protocol Anomaly</span>
+                    </div>
+                    <div class="arch-arrow">➔</div>
+                    <div class="arch-node">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>Ensemble Fusion & MITRE Mapping</span>
+                    </div>
+                </div>
+
+                <div class="arch-details-grid">
+                    <div class="arch-box">
+                        <h4>1. Flow-Based Deep Learning Model (CNN + LSTM / MLP)</h4>
+                        <p><b>Role:</b> Receives 12 flow-level statistical features (packet rate, flow duration, SYN/RST/ACK counts, failed auths, destination port).</p>
+                        <p><b>Target Attack Classes:</b> DoS, DDoS, Port Scanning, Brute-Force, Normal.</p>
+                        <p><b>Input/Output:</b> Input vector (1x12 normalized) ➔ 128 -> 64 -> 32 Dense ReLU layers ➔ Softmax class probabilities.</p>
+                    </div>
+
+                    <div class="arch-box">
+                        <h4>2. Protocol-Level Random Forest Anomaly Detector</h4>
+                        <p><b>Role:</b> Receives 5 ARP protocol metrics (request rate, reply rate, reply/req ratio, MAC change rate, conflict count).</p>
+                        <p><b>Target Attack Classes:</b> ARP Spoofing / Man-in-the-Middle (MITM) Anomalies.</p>
+                        <p><b>Input/Output:</b> Input vector (1x5 normalized) ➔ 100 Decision Trees (max_depth=10) ➔ Anomaly probability score.</p>
+                    </div>
+
+                    <div class="arch-box">
+                        <h4>3. Ensemble Fusion & Decision Logic</h4>
+                        <p><b>Decision Rule:</b> If ARP protocol anomaly score > 0.60, prioritize ARP Spoofing detection. Otherwise, use Deep Learning flow prediction.</p>
+                        <p><b>Score Output:</b> Weighted Threat Index (0 - 100) + Severity Tag + MITRE ATT&CK technique mapping.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real Model Evaluation Metrics & Confusion Matrix (PDF High Priority #5 & #6, Section E) -->
             <section id="metrics" class="panel">
                 <div class="panel-header">
-                    <h3><i class="fa-solid fa-microchip"></i> Machine Learning & Deep Learning Model Performance Evaluation</h3>
+                    <h3><i class="fa-solid fa-microchip"></i> Model Performance Evaluation & Confusion Matrix</h3>
+                    <span class="badge badge-success">Measured Benchmark Results</span>
                 </div>
+
+                <div class="dataset-doc-box">
+                    <h4><i class="fa-solid fa-database"></i> Benchmark Dataset & Train/Test Split Documentation</h4>
+                    <p><b>Dataset Sources:</b> CICIDS2017 & UNSW-NB15 Benchmark Flow Schema + Protocol ARP Anomaly Dataset.</p>
+                    <p><b>Sample Size:</b> 14,000 total samples (10,000 flow samples + 4,000 ARP protocol samples).</p>
+                    <p><b>Validation Strategy:</b> 80% Training Split / 20% Stratified Testing Split.</p>
+                </div>
+
                 <div class="metrics-grid">
                     <div class="metric-box">
-                        <h4>Deep Learning Flow Model (LSTM/CNN)</h4>
-                        <div class="metric-stats" id="dlModelMetrics">
+                        <h4>Deep Learning Flow Model (CNN+LSTM / MLP)</h4>
+                        <div class="metric-stats">
                             <div><span>Accuracy:</span> <strong id="m-dl-acc">--</strong></div>
                             <div><span>Precision:</span> <strong id="m-dl-prec">--</strong></div>
                             <div><span>Recall:</span> <strong id="m-dl-rec">--</strong></div>
                             <div><span>F1-Score:</span> <strong id="m-dl-f1">--</strong></div>
-                            <div><span>FPR:</span> <strong id="m-dl-fpr">--</strong></div>
+                            <div><span>FPR (False Pos.):</span> <strong id="m-dl-fpr">--</strong></div>
+                            <div><span>FNR (False Neg.):</span> <strong id="m-dl-fnr">--</strong></div>
+                        </div>
+
+                        <h5 class="subhead">Multi-Class Confusion Matrix</h5>
+                        <div class="cm-table-wrapper" id="dlCmContainer">
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
 
                     <div class="metric-box">
                         <h4>Random Forest Protocol Anomaly Detector</h4>
-                        <div class="metric-stats" id="rfModelMetrics">
+                        <div class="metric-stats">
                             <div><span>Accuracy:</span> <strong id="m-rf-acc">--</strong></div>
                             <div><span>Precision:</span> <strong id="m-rf-prec">--</strong></div>
                             <div><span>Recall:</span> <strong id="m-rf-rec">--</strong></div>
                             <div><span>F1-Score:</span> <strong id="m-rf-f1">--</strong></div>
-                            <div><span>FPR:</span> <strong id="m-rf-fpr">--</strong></div>
+                            <div><span>FPR (False Pos.):</span> <strong id="m-rf-fpr">--</strong></div>
+                            <div><span>FNR (False Neg.):</span> <strong id="m-rf-fnr">--</strong></div>
                         </div>
+
+                        <h5 class="subhead">Binary Confusion Matrix (ARP Spoofing)</h5>
+                        <div class="cm-table-wrapper" id="rfCmContainer">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cm-legend-box">
+                    <p><b>Confusion Matrix Terms Explained:</b></p>
+                    <ul>
+                        <li><b>True Positives (TP):</b> Attack traffic correctly flagged as an attack.</li>
+                        <li><b>True Negatives (TN):</b> Normal benign traffic correctly recognized as normal.</li>
+                        <li><b>False Positives (FP):</b> Normal traffic incorrectly flagged as an attack (False Alarm).</li>
+                        <li><b>False Negatives (FN):</b> Malicious attack traffic missed by the model (High Security Risk).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Drawbacks & Limitations Section (PDF Section F) -->
+            <section id="limitations" class="panel limitations-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-triangle-exclamation text-warning"></i> System Drawbacks & Architectural Limitations</h3>
+                    <span class="badge badge-warning">Examiner Project Review Notes</span>
+                </div>
+                <div class="limitations-grid">
+                    <div class="limitation-card">
+                        <h4>1. Dataset Dependency & Distribution Shift</h4>
+                        <p>Model performance relies on historical benchmark distribution. Shifts in real-world network protocols or novel network payloads may degrade classification accuracy over time.</p>
+                    </div>
+
+                    <div class="limitation-card">
+                        <h4>2. False Positive & False Negative Trade-Offs</h4>
+                        <p>Excessive False Positives cause alert fatigue for security analysts. Conversely, False Negatives represent missed intrusions, making FNR (False Negative Rate) monitoring critical.</p>
+                    </div>
+
+                    <div class="limitation-card">
+                        <h4>3. Explainability Limitations</h4>
+                        <p>Deep Learning model outputs are probabilistic. While feature reasoning provides rule-based explanations, black-box neural networks lack full mathematical interpretability.</p>
+                    </div>
+
+                    <div class="limitation-card">
+                        <h4>4. Simulation vs. Hardware Capture</h4>
+                        <p>This implementation uses simulated flow streams for demonstration purposes. Deployment on physical networks requires dedicated packet capture taps (e.g., Libpcap / Scapy).</p>
+                    </div>
+
+                    <div class="limitation-card">
+                        <h4>5. Automated Mitigation Disclaimer</h4>
+                        <p>Automated inline IP blocking can cause unintended denial of service if triggered by false positives. Response actions are provided as <b>Recommended Analyst Guidance</b>.</p>
+                    </div>
+
+                    <div class="limitation-card">
+                        <h4>6. Zero-Day & Unseen Attack Scope</h4>
+                        <p>Supervised neural networks excel at known attack structures. Novel zero-day exploits absent from training datasets rely on the Random Forest anomaly threshold.</p>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Alert Inspection Modal -->
+    <!-- Alert Investigation Drawer / Modal (PDF Section B) -->
     <div class="modal-overlay" id="alertModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-circle-info"></i> Security Event Detail Inspection</h3>
+                <h3><i class="fa-solid fa-microscope"></i> Incident Investigation Drawer</h3>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalBody">

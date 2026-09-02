@@ -1,10 +1,40 @@
 {
+    "dataset": {
+        "name": "CICIDS2017 / UNSW-NB15 Flow Benchmark + Custom ARP Protocol Anomaly Benchmark",
+        "total_flow_samples": 10000,
+        "total_arp_samples": 4000,
+        "total_combined_samples": 14000,
+        "train_test_split": "80% Training / 20% Testing (Stratified Split)",
+        "flow_features": [
+            "flow_duration",
+            "total_fwd_packets",
+            "total_bwd_packets",
+            "flow_bytes_s",
+            "flow_packets_s",
+            "fwd_pkt_len_mean",
+            "bwd_pkt_len_mean",
+            "syn_flag_count",
+            "rst_flag_count",
+            "ack_flag_count",
+            "dst_port",
+            "failed_auth_attempts"
+        ],
+        "arp_features": [
+            "arp_request_rate",
+            "arp_reply_rate",
+            "arp_reply_req_ratio",
+            "mac_change_rate",
+            "ip_mac_binding_conflicts"
+        ]
+    },
     "flow_model": {
+        "architecture": "Deep Neural Network (Multi-Layer Perceptron / CNN-LSTM Feature Layers: 128 -> 64 -> 32, ReLU Activation, Adam Optimizer)",
         "accuracy": 0.9975,
         "precision": 0.9975111099999375,
         "recall": 0.9975,
         "f1_score": 0.9974999648432556,
         "fpr": 0.0006249999999609375,
+        "fnr": 0.0024999999999999467,
         "confusion_matrix": [
             [
                 400,
@@ -51,11 +81,13 @@
         ]
     },
     "arp_anomaly_model": {
+        "architecture": "Random Forest Protocol Anomaly Classifier (100 Trees, max_depth=10)",
         "accuracy": 1.0,
         "precision": 1.0,
         "recall": 1.0,
         "f1_score": 1.0,
         "fpr": 0.0,
+        "fnr": 0.0,
         "confusion_matrix": [
             [
                 400,

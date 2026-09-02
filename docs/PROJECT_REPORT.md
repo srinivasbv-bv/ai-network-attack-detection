@@ -1,4 +1,4 @@
-# AI-POWERED NETWORK ATTACK DETECTION SYSTEM USING DEEP LEARNING AND ANOMALY DETECTION
+# AI POWERED THREAT DETECTION SYSTEM
 
 **A Project Documentation Submitted in Partial Fulfillment of Requirement for the Award of the Degree of**  
 ### Master of Science in Computer Science (MCA)
@@ -10,7 +10,7 @@
 
 Network-based cyber-attacks such as Denial of Service (DoS), Distributed Denial of Service (DDoS), port scanning, brute-force login attempts, and Man-in-the-Middle (MITM)/ARP spoofing continue to be among the most frequent and disruptive threats faced by organizational networks. Traditional signature-based Intrusion Detection Systems (IDS) are effective against known attack signatures but struggle against high-volume, evolving, and distributed attack patterns. 
 
-This project proposes an AI-powered Network Attack Detection System that combines deep learning (implemented using TensorFlow/Keras / Scikit-Learn MLP) for flow-based volumetric attacks with a machine-learning-based anomaly detector for protocol-level attacks such as ARP spoofing and MITM. Detected events are indexed and visualized through the open-source ELK Stack (Elasticsearch, Logstash, Kibana), and each detection is mapped to the MITRE ATT&CK framework, Cyber Kill Chain, CAPEC, and OWASP Top 10 to give security analysts standardized, actionable context. The system is designed entirely using free and open-source tools and benchmark datasets, making it a low-cost, reproducible solution suitable for academic research and small-to-medium network deployments.
+This project proposes the **AI POWERED THREAT DETECTION SYSTEM**, combining deep learning (CNN+LSTM / Deep MLP architecture) for flow-based volumetric attacks with a machine-learning-based anomaly detector (Random Forest) for protocol-level attacks such as ARP spoofing and MITM. Detected events are indexed and visualized through the open-source ELK Stack (Elasticsearch, Logstash, Kibana), and each detection is mapped to the MITRE ATT&CK framework, Cyber Kill Chain, CAPEC, and OWASP Top 10 to give security analysts standardized, actionable context. The system is designed entirely using free and open-source tools and benchmark datasets, making it a low-cost, reproducible solution suitable for academic research and small-to-medium network deployments.
 
 ---
 
@@ -26,11 +26,11 @@ Existing rule-based network defenses cannot reliably keep pace with high-volume,
 
 ### 1.3 Objectives
 1. **To Study and categorize** the characteristics of DoS, DDoS, Port Scanning, Brute-Force, and MITM/ARP Spoofing attacks at the network flow and protocol level.
-2. **To Design and train** deep learning models using TensorFlow/Keras to detect volumetric and sequential attack patterns.
-3. **To Design** a machine-learning-based anomaly detector for protocol-level MITM/ARP spoofing attacks that do not exhibit high-volume traffic signatures.
+2. **To Design and train** deep learning models (CNN+LSTM / MLP) using TensorFlow/Keras / Scikit-Learn to detect volumetric and sequential attack patterns.
+3. **To Design** a machine-learning-based anomaly detector (Random Forest) for protocol-level MITM/ARP spoofing attacks that do not exhibit high-volume traffic signatures.
 4. **To Integrate** the ELK Stack (Elasticsearch, Logstash, Kibana) for centralized log ingestion, storage, and visual analytics of detected events.
 5. **To Map** each detected attack category to MITRE ATT&CK techniques, Cyber Kill Chain stages, CAPEC references, and OWASP Top 10 guidelines.
-6. **To Evaluate** the system using standard benchmark datasets and metrics (accuracy, precision, recall, F1-score, false positive rate).
+6. **To Evaluate** the system using standard benchmark datasets and metrics (accuracy, precision, recall, F1-score, false positive rate, false negative rate).
 
 ### 1.4 Scope of the Project
 This project focuses specifically on five network attack categories:
@@ -60,13 +60,13 @@ The ELK Stack (Elasticsearch, Logstash, Kibana) is an established open-source so
 
 ## 3. THREAT FRAMEWORK MAPPING
 
-| Attack Category | MITRE ATT&CK Technique | Cyber Kill Chain Stage | CAPEC Reference | OWASP Top 10 Reference |
-| :--- | :--- | :--- | :--- | :--- |
-| **Denial of Service (DoS)** | T1499 – Endpoint Denial of Service | Actions on Objectives | CAPEC-125 (Flooding) | A05:2021 – Resource Exhaustion |
-| **Distributed Denial of Service (DDoS)** | T1498 – Network Denial of Service | Actions on Objectives | CAPEC-125 (Flooding) | A05:2021 – Resource Exhaustion |
-| **Port Scanning** | T1046 – Network Service Discovery | Reconnaissance | CAPEC-300 (Footprinting) | A05:2021 – Security Misconfiguration |
-| **Brute-Force Attacks** | T1110 – Brute Force | Credential Access | CAPEC-49 (Password Brute Forcing) | A07:2021 – Auth Failures |
-| **MITM / ARP Spoofing** | T1557 – Adversary-in-the-Middle | Credential Access / Collection | CAPEC-94 (Man-in-the-Middle) | A02:2021 – Cryptographic Failures |
+| Attack Category | MITRE ATT&CK Technique | Cyber Kill Chain Stage | CAPEC Reference | OWASP Top 10 Reference | Risk Severity |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Denial of Service (DoS)** | T1499 – Endpoint Denial of Service | Actions on Objectives | CAPEC-125 (Flooding) | A05:2021 – Resource Exhaustion | **High** (60 - 84) |
+| **Distributed Denial of Service (DDoS)** | T1498 – Network Denial of Service | Actions on Objectives | CAPEC-125 (Flooding) | A05:2021 – Resource Exhaustion | **Critical** (85 - 100) |
+| **Port Scanning** | T1046 – Network Service Discovery | Reconnaissance | CAPEC-300 (Footprinting) | A05:2021 – Security Misconfiguration | **Medium** (30 - 59) |
+| **Brute-Force Attacks** | T1110 – Brute Force | Credential Access | CAPEC-49 (Password Brute Forcing) | A07:2021 – Auth Failures | **High** (60 - 84) |
+| **MITM / ARP Spoofing** | T1557 – Adversary-in-the-Middle | Credential Access / Collection | CAPEC-94 (Man-in-the-Middle) | A02:2021 – Cryptographic Failures | **Critical** (85 - 100) |
 
 ---
 
@@ -81,7 +81,7 @@ The ELK Stack (Elasticsearch, Logstash, Kibana) is an established open-source so
 ### 4.2 Software Requirements
 - **Operating System**: Ubuntu Linux or Windows 10/11.
 - **Programming Language**: Python 3.x.
-- **ML/DL Frameworks**: Scikit-Learn, NumPy, Pandas, Joblib.
+- **ML/DL Frameworks**: Scikit-Learn, NumPy, Joblib.
 - **Web Backend & Frontend**: Flask, HTML5, CSS3 (Glassmorphism SOC Theme), JavaScript (Chart.js, SSE).
 - **Log Analytics**: ELK Stack (Logstash 8.x, Elasticsearch 8.x, Kibana 8.x).
 
@@ -94,31 +94,32 @@ Live network traffic is captured and assembled into flow records. Two parallel f
 1. **Flow-Based Features**: Flow duration, packet/byte rates, port distributions, TCP flags passed to the Deep Learning Flow Classifier.
 2. **Protocol-Level Features**: ARP request/reply ratios, MAC binding conflict counts passed to the Random Forest Anomaly Detector.
 
-An **Ensemble Correlation Engine** fuses outputs, assigns threat severity scores, appends MITRE ATT&CK framework context, and exports normalized Elastic Common Schema (ECS) JSON to Logstash / Elasticsearch.
+An **Ensemble Correlation Engine** fuses outputs, assigns threat severity scores, appends MITRE ATT&CK framework context, generates feature-based reasoning explanations ("Why Was This Detected?"), and exports normalized Elastic Common Schema (ECS) JSON to Logstash / Elasticsearch.
 
 ```
-+------------------+     +------------------------+
-| Raw Traffic Stream| --> | Feature Extractor Path |
-+------------------+     +------------------------+
++-------------------+     +------------------------+
+| Simulated Stream  | --> | Feature Extractor Path |
++-------------------+     +------------------------+
                                |              |
         +----------------------+              +----------------------+
-        | (Flow Features)                                            | (ARP Metrics)
+        | (Flow Features: 12)                                        | (ARP Metrics: 5)
         v                                                            v
 +-------------------------------+                            +-----------------------------------+
 | Deep Learning Flow Model      |                            | Random Forest Protocol Detector   |
-| (DoS, DDoS, PortScan, Brute)  |                            | (ARP Spoofing / MITM Anomalies)   |
+| (CNN+LSTM / Deep MLP)         |                            | (ARP Spoofing / MITM Anomalies)   |
 +-------------------------------+                            +-----------------------------------+
         |                                                            |
         +----------------------+              +----------------------+
                                v              v
                      +-----------------------------------+
                      | Ensemble Correlation Engine       |
+                     | (Score Fusion & Conflict Resolve) |
                      +-----------------------------------+
                                        |
                                        v
                      +-----------------------------------+
-                     | Threat Framework Mapper           |
-                     | (MITRE, Kill Chain, CAPEC, OWASP) |
+                     | Threat Framework & Reasoning      |
+                     | (MITRE, Kill Chain, Why Detected) |
                      +-----------------------------------+
                                        |
                                        v
@@ -133,26 +134,28 @@ An **Ensemble Correlation Engine** fuses outputs, assigns threat severity scores
 
 ### 6.1 Performance Summary Table
 
-| Model Component | Target Attack Classes | Accuracy | Precision | Recall | F1-Score | False Positive Rate (FPR) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Deep Learning Flow Model** | Normal, DoS, DDoS, PortScan, BruteForce | **99.85%** | **99.85%** | **99.85%** | **99.85%** | **0.04%** |
-| **Protocol Anomaly Detector** | Normal ARP, ARP Spoofing / MITM | **100.00%** | **100.00%** | **100.00%** | **100.00%** | **0.00%** |
+| Model Component | Target Attack Classes | Accuracy | Precision | Recall | F1-Score | FPR | FNR |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Deep Learning Flow Model** | Normal, DoS, DDoS, PortScan, BruteForce | **99.75%** | **99.75%** | **99.75%** | **99.75%** | **0.06%** | **0.25%** |
+| **Protocol Anomaly Detector** | Normal ARP, ARP Spoofing / MITM | **100.00%** | **100.00%** | **100.00%** | **100.00%** | **0.00%** | **0.00%** |
+
+- **Dataset Info**: CICIDS2017 & UNSW-NB15 Flow Schema + ARP Anomaly Benchmark (14,000 total samples, 80/20 train/test split).
 
 ---
 
-## 7. ADVANTAGES & EXPECTED OUTCOMES
+## 7. SYSTEM DRAWBACKS & ARCHITECTURAL LIMITATIONS
 
-1. **Improved Detection Accuracy Across Attack Types**: Combining deep learning for volumetric attacks with a protocol-level anomaly detector yields superior accuracy.
-2. **Reduced False Negatives on Evolving Attack Patterns**: Neural network flow sequences generalize beyond static signature rules.
-3. **Detection of Low-Volume Protocol Attacks**: ARP/MITM anomaly detection catches low-and-slow interception threats missed by volumetric systems.
-4. **Analyst-Friendly Threat Context**: Direct mapping to MITRE ATT&CK and Cyber Kill Chain accelerates incident response.
-5. **Zero Licensing Cost**: Built entirely using open-source tools.
+1. **Dataset Dependency**: Model performance relies on historical training benchmark distribution. Distribution shifts in real-world network traffic can reduce accuracy over time.
+2. **False Positives & False Negatives**: Excessive False Positives cause alert fatigue for analysts. False Negatives represent missed intrusions, making FNR monitoring critical.
+3. **Model Explainability Limits**: Neural network predictions are probabilistic. Feature-based reasoning provides rule-based explanations, but deep models lack full mathematical interpretability.
+4. **Real-time Live Capture vs. Simulation**: The current web demonstration uses simulated flow streams. Live network deployment requires physical network tap integration (e.g., Libpcap / Scapy).
+5. **Response Mitigation Guidelines**: Automated inline blocking can cause service interruption if triggered by false alarms. Response actions are formatted as **Recommended Analyst Guidance**.
 
 ---
 
 ## 8. CONCLUSION & FUTURE WORK
 
-This project successfully implements an AI-powered network attack detection system combining deep learning flow modeling, protocol anomaly detection, threat framework mapping, and centralized ELK log analytics. Future enhancements include extending detection models to encrypted HTTPS/TLS payload inspection and deploying live hardware network taps.
+This project successfully implements the **AI POWERED THREAT DETECTION SYSTEM** combining deep learning flow modeling, protocol anomaly detection, threat framework mapping, feature reasoning, and centralized ELK log analytics. Future work includes deploying hardware network taps and continuous online model retraining.
 
 ---
 

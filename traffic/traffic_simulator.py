@@ -6,17 +6,20 @@ from collections import deque
 class NetworkTrafficSimulator:
     """
     Simulates live network packet flows and protocol metrics.
-    Can run in continuous background mode or execute user-triggered attack vectors.
+    Supports Demo Mode, intensity controls, and explicit simulation labeling.
     """
 
     def __init__(self, correlation_engine, max_history=100):
         self.engine = correlation_engine
         self.max_history = max_history
         self.alert_history = deque(maxlen=max_history)
-        self.is_running = False
+        self.demo_mode = True # Default Demo Mode active
         self.lock = threading.Lock()
         self.active_manual_attack = None
+        self.attack_intensity = "Medium" # Low, Medium, High
         self.stats = {
+            "system_status": "Demo Mode (Simulated Traffic)",
+            "demo_mode": True,
             "total_events": 0,
             "normal_count": 0,
             "attack_count": 0,
@@ -25,14 +28,26 @@ class NetworkTrafficSimulator:
             "portscan_count": 0,
             "bruteforce_count": 0,
             "mitm_count": 0,
-            "latest_threat_score": 0
+            "latest_threat_score": 0.0
         }
 
-    def set_manual_attack(self, attack_type):
-        """Injects a specific attack type into the live traffic stream."""
-        self.active_manual_attack = attack_type
+    def set_demo_mode(self, enabled):
+        with self.lock:
+            self.demo_mode = bool(enabled)
+            if self.demo_mode:
+                self.stats["system_status"] = "Demo Mode (Simulated Traffic)"
+            else:
+                self.stats["system_status"] = "Online (Passive Stream)"
+            self.stats["demo_mode"] = self.demo_mode
+        return self.demo_mode
 
-    def generate_simulated_traffic(self, attack_type=None):
+    def set_manual_attack(self, attack_type, intensity="Medium"):
+        """Injects a specific attack type into the simulation stream with given intensity."""
+        with self.lock:
+            self.active_manual_attack = attack_type
+            self.attack_intensity = intensity
+
+    def generate_simulated_traffic(self, attack_type=None, intensity="Medium"):
         """Generates synthetic flow & protocol metrics matching a chosen traffic type."""
         if attack_type is None:
             # 85% Normal traffic, 15% random background attacks
@@ -47,6 +62,9 @@ class NetworkTrafficSimulator:
         src_ip = random.choice(src_ips)
         dst_ip = random.choice(dst_ips)
         protocol = "TCP"
+
+        # Intensity multipliers
+        intensity_mult = {"Low": 0.5, "Medium": 1.0, "High": 2.0}.get(intensity, 1.0)
 
         if attack_type == "Normal":
             flow = {
@@ -74,13 +92,13 @@ class NetworkTrafficSimulator:
         elif attack_type == "DoS":
             flow = {
                 "flow_duration": random.uniform(500, 2000),
-                "total_fwd_packets": random.randint(800, 4000),
+                "total_fwd_packets": int(random.randint(800, 4000) * intensity_mult),
                 "total_bwd_packets": random.randint(0, 5),
-                "flow_bytes_s": random.uniform(800000, 4000000),
-                "flow_packets_s": random.uniform(1000, 5000),
+                "flow_bytes_s": random.uniform(800000, 4000000) * intensity_mult,
+                "flow_packets_s": random.uniform(1000, 5000) * intensity_mult,
                 "fwd_pkt_len_mean": random.uniform(128, 512),
                 "bwd_pkt_len_mean": 0,
-                "syn_flag_count": random.randint(500, 2000),
+                "syn_flag_count": int(random.randint(500, 2000) * intensity_mult),
                 "rst_flag_count": random.randint(100, 400),
                 "ack_flag_count": 0,
                 "dst_port": 80,
@@ -89,16 +107,16 @@ class NetworkTrafficSimulator:
             arp = {"arp_request_rate": 1.0, "arp_reply_rate": 1.0, "arp_reply_req_ratio": 1.0, "mac_change_rate": 0, "ip_mac_binding_conflicts": 0}
 
         elif attack_type == "DDoS":
-            src_ip = f"172.24.{random.randint(1, 254)}.{random.randint(1, 254)}" # Botnet IP
+            src_ip = f"172.24.{random.randint(1, 254)}.{random.randint(1, 254)}"
             flow = {
                 "flow_duration": random.uniform(100, 800),
-                "total_fwd_packets": random.randint(5000, 15000),
+                "total_fwd_packets": int(random.randint(5000, 15000) * intensity_mult),
                 "total_bwd_packets": 0,
-                "flow_bytes_s": random.uniform(5000000, 18000000),
-                "flow_packets_s": random.uniform(8000, 25000),
+                "flow_bytes_s": random.uniform(5000000, 18000000) * intensity_mult,
+                "flow_packets_s": random.uniform(8000, 25000) * intensity_mult,
                 "fwd_pkt_len_mean": random.uniform(64, 256),
                 "bwd_pkt_len_mean": 0,
-                "syn_flag_count": random.randint(2000, 8000),
+                "syn_flag_count": int(random.randint(2000, 8000) * intensity_mult),
                 "rst_flag_count": random.randint(500, 1200),
                 "ack_flag_count": 0,
                 "dst_port": random.choice([80, 443]),
@@ -112,7 +130,7 @@ class NetworkTrafficSimulator:
                 "total_fwd_packets": random.randint(1, 3),
                 "total_bwd_packets": 0,
                 "flow_bytes_s": random.uniform(100, 1500),
-                "flow_packets_s": random.uniform(50, 500),
+                "flow_packets_s": random.uniform(50, 500) * intensity_mult,
                 "fwd_pkt_len_mean": random.uniform(40, 64),
                 "bwd_pkt_len_mean": 0,
                 "syn_flag_count": 1,
@@ -136,7 +154,7 @@ class NetworkTrafficSimulator:
                 "rst_flag_count": random.randint(5, 20),
                 "ack_flag_count": random.randint(100, 250),
                 "dst_port": random.choice([22, 21, 3389]),
-                "failed_auth_attempts": random.randint(25, 120)
+                "failed_auth_attempts": int(random.randint(25, 120) * intensity_mult)
             }
             arp = {"arp_request_rate": 1.0, "arp_reply_rate": 1.0, "arp_reply_req_ratio": 1.0, "mac_change_rate": 0, "ip_mac_binding_conflicts": 0}
 
@@ -158,10 +176,10 @@ class NetworkTrafficSimulator:
             }
             arp = {
                 "arp_request_rate": random.uniform(0.2, 2.0),
-                "arp_reply_rate": random.uniform(25.0, 120.0), # High unsolicited reply flooding
-                "arp_reply_req_ratio": random.uniform(15.0, 60.0),
-                "mac_change_rate": random.randint(5, 20),       # MAC address rapid flipping
-                "ip_mac_binding_conflicts": random.randint(2, 8)
+                "arp_reply_rate": random.uniform(25.0, 120.0) * intensity_mult,
+                "arp_reply_req_ratio": random.uniform(15.0, 60.0) * intensity_mult,
+                "mac_change_rate": int(random.randint(5, 20) * intensity_mult),
+                "ip_mac_binding_conflicts": int(random.randint(2, 8) * intensity_mult)
             }
 
         # Analyze event through ensemble correlation engine
@@ -193,10 +211,11 @@ class NetworkTrafficSimulator:
     def generate_next_event(self):
         """Generates the next event taking into account any active manual injection."""
         attack_type = self.active_manual_attack
+        intensity = self.attack_intensity
         self.active_manual_attack = None # Reset manual trigger after 1 fire
-        return self.generate_simulated_traffic(attack_type=attack_type)
+        return self.generate_simulated_traffic(attack_type=attack_type, intensity=intensity)
 
-    def get_recent_alerts(self, limit=20):
+    def get_recent_alerts(self, limit=25):
         with self.lock:
             return list(self.alert_history)[:limit]
 

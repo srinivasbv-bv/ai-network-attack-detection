@@ -27,7 +27,6 @@ def index():
 @app.route("/api/stream")
 def stream_traffic():
     def generate():
-        # Cap iterations on serverless platforms (e.g. Vercel) to prevent Function Timeout
         max_iters = 5 if os.environ.get("VERCEL") else 300
         count = 0
         while count < max_iters:
@@ -50,12 +49,20 @@ def next_event():
     exporter.export_event(event)
     return jsonify({"event": event, "stats": simulator.get_stats()})
 
+@app.route("/api/toggle_demo", methods=["POST"])
+def toggle_demo():
+    req_data = request.get_json() or {}
+    enabled = req_data.get("enabled", True)
+    status = simulator.set_demo_mode(enabled)
+    return jsonify({"status": "success", "demo_mode": status, "system_status": simulator.get_stats()["system_status"]})
+
 @app.route("/api/trigger_attack", methods=["POST"])
 def trigger_attack():
     req_data = request.get_json() or {}
     attack_type = req_data.get("attack_type", "DoS")
-    simulator.set_manual_attack(attack_type)
-    return jsonify({"status": "success", "message": f"Attack type '{attack_type}' injected into live traffic stream."})
+    intensity = req_data.get("intensity", "Medium")
+    simulator.set_manual_attack(attack_type, intensity=intensity)
+    return jsonify({"status": "success", "message": f"Attack type '{attack_type}' ({intensity} intensity) injected into traffic stream."})
 
 @app.route("/api/stats", methods=["GET"])
 def get_stats():
