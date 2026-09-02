@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4.0">
 </head>
 <body>
     <div class="app-container">
@@ -24,9 +24,9 @@
             </div>
 
             <nav class="nav-menu">
-                <a href="#dashboard" class="nav-item active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="#simulator" class="nav-item active"><i class="fa-solid fa-bolt"></i> Attack Simulator</a>
+                <a href="#dashboard" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
                 <a href="#live-prediction" class="nav-item"><i class="fa-solid fa-satellite-dish"></i> Live Prediction</a>
-                <a href="#simulator" class="nav-item"><i class="fa-solid fa-bolt"></i> Attack Simulator</a>
                 <a href="#mitre" class="nav-item"><i class="fa-solid fa-cubes"></i> MITRE ATT&CK</a>
                 <a href="#alerts" class="nav-item"><i class="fa-solid fa-bell"></i> Security Events</a>
                 <a href="#architecture" class="nav-item"><i class="fa-solid fa-sitemap"></i> AI Architecture</a>
@@ -56,6 +56,43 @@
                     <button class="btn btn-outline" id="pauseStreamBtn"><i class="fa-solid fa-pause"></i> Pause Feed</button>
                 </div>
             </header>
+
+            <!-- Attack Simulator Control Console (PDF High Priority #1 & #7) -->
+            <section id="simulator" class="panel simulator-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-crosshairs text-accent"></i> Real-Time Attack Vector Simulator</h3>
+                    <div class="simulator-meta">
+                        <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Simulation Mode: Safe Traffic Generation</span>
+                    </div>
+                </div>
+                <div class="simulator-controls-bar">
+                    <div class="sim-control-group">
+                        <label for="simIntensity">Attack Intensity:</label>
+                        <select id="simIntensity" class="select-input">
+                            <option value="Low">Low Intensity</option>
+                            <option value="Medium" selected>Medium Intensity</option>
+                            <option value="High">High Volumetric Intensity</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="simulator-buttons">
+                    <button class="btn-attack btn-dos" onclick="triggerAttack('DoS')">
+                        <i class="fa-solid fa-burst"></i> DoS Attack (T1499)
+                    </button>
+                    <button class="btn-attack btn-ddos" onclick="triggerAttack('DDoS')">
+                        <i class="fa-solid fa-radiation"></i> DDoS Attack (T1498)
+                    </button>
+                    <button class="btn-attack btn-portscan" onclick="triggerAttack('PortScan')">
+                        <i class="fa-solid fa-radar"></i> Port Scan (T1046)
+                    </button>
+                    <button class="btn-attack btn-bruteforce" onclick="triggerAttack('BruteForce')">
+                        <i class="fa-solid fa-key"></i> Brute-Force (T1110)
+                    </button>
+                    <button class="btn-attack btn-mitm" onclick="triggerAttack('ARP Spoofing / MITM')">
+                        <i class="fa-solid fa-user-secret"></i> ARP Spoof / MITM (T1557)
+                    </button>
+                </div>
+            </section>
 
             <!-- Metrics Overview Bar -->
             <section class="stats-row">
@@ -132,43 +169,6 @@
                             <span class="chip">ARP Reply Ratio: --</span>
                         </div>
                     </div>
-                </div>
-            </section>
-
-            <!-- Attack Simulator Control Console (PDF High Priority #1 & #7) -->
-            <section id="simulator" class="panel simulator-panel">
-                <div class="panel-header">
-                    <h3><i class="fa-solid fa-crosshairs text-accent"></i> Real-Time Attack Vector Simulator</h3>
-                    <div class="simulator-meta">
-                        <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Simulation Mode: Safe Traffic Generation</span>
-                    </div>
-                </div>
-                <div class="simulator-controls-bar">
-                    <div class="sim-control-group">
-                        <label for="simIntensity">Attack Intensity:</label>
-                        <select id="simIntensity" class="select-input">
-                            <option value="Low">Low Intensity</option>
-                            <option value="Medium" selected>Medium Intensity</option>
-                            <option value="High">High Volumetric Intensity</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="simulator-buttons">
-                    <button class="btn-attack btn-dos" onclick="triggerAttack('DoS')">
-                        <i class="fa-solid fa-burst"></i> DoS Attack (T1499)
-                    </button>
-                    <button class="btn-attack btn-ddos" onclick="triggerAttack('DDoS')">
-                        <i class="fa-solid fa-radiation"></i> DDoS Attack (T1498)
-                    </button>
-                    <button class="btn-attack btn-portscan" onclick="triggerAttack('PortScan')">
-                        <i class="fa-solid fa-radar"></i> Port Scan (T1046)
-                    </button>
-                    <button class="btn-attack btn-bruteforce" onclick="triggerAttack('BruteForce')">
-                        <i class="fa-solid fa-key"></i> Brute-Force (T1110)
-                    </button>
-                    <button class="btn-attack btn-mitm" onclick="triggerAttack('ARP Spoofing / MITM')">
-                        <i class="fa-solid fa-user-secret"></i> ARP Spoof / MITM (T1557)
-                    </button>
                 </div>
             </section>
 
@@ -417,6 +417,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=3.0"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=4.0"></script>
 </body>
 </html>
