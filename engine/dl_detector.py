@@ -3,9 +3,9 @@ import numpy as np
 
 class DeepLearningDetector:
     """
-    Evaluates flow-based features using the Deep Learning model (LSTM/CNN/MLP architecture).
+    Evaluates flow-based features using the Deep Neural Network model (Deep Multi-Layer Perceptron / Deep MLP architecture).
     Classifies traffic into: Normal, DoS, DDoS, PortScan, BruteForce.
-    Uses lazy loading and deterministic mathematical decision engine for serverless environments.
+    Uses trained MLP neural network model with a deterministic fallback for maximum serverless resilience.
     """
     CLASSES = ["Normal", "DoS", "DDoS", "PortScan", "BruteForce"]
 
@@ -21,11 +21,6 @@ class DeepLearningDetector:
             return
         self.tried_loading = True
 
-        # On Vercel serverless, use deterministic rule engine to avoid Python pickle version mismatch
-        if os.environ.get("VERCEL"):
-            self.is_loaded = False
-            return
-
         model_path = os.path.join(self.model_dir, "dl_flow_model.joblib")
         scaler_path = os.path.join(self.model_dir, "flow_scaler.joblib")
 
@@ -35,6 +30,7 @@ class DeepLearningDetector:
                 self.model = joblib.load(model_path)
                 self.scaler = joblib.load(scaler_path)
                 self.is_loaded = True
+                print("[DLDetector] Successfully loaded trained MLP Neural Network model.")
             except BaseException as e:
                 print(f"[DLDetector] Joblib load fallback: {e}")
                 self.is_loaded = False
@@ -64,9 +60,9 @@ class DeepLearningDetector:
                     "probabilities": prob_dict
                 }
             except Exception as e:
-                print(f"[DLDetector] Predict exception, using mathematical fallback: {e}")
+                print(f"[DLDetector] Predict exception, using fallback: {e}")
 
-        # Deterministic Mathematical Rule Engine (100% reliable across all Python/serverless runtimes)
+        # Deterministic Mathematical Rule Fallback (Guarantees 100% serverless resilience)
         feats = feature_vector[0]
         flow_duration, fwd_pkts, bwd_pkts, bytes_s, pkts_s, fwd_len, bwd_len, syn_cnt, rst_cnt, ack_cnt, dst_port, failed_auth = feats
 

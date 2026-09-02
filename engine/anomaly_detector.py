@@ -6,7 +6,7 @@ class AnomalyDetector:
     Protocol-Level Machine Learning Anomaly Detector (Random Forest).
     Monitors IP-MAC binding changes, gratuitous ARP reply rates, and conflict counts
     to identify low-volume ARP Spoofing / MITM attacks.
-    Uses lazy loading and deterministic mathematical decision engine for serverless environments.
+    Uses trained Random Forest model with a deterministic fallback for maximum serverless resilience.
     """
     CLASSES = ["Normal ARP", "ARP Spoofing / MITM"]
 
@@ -22,11 +22,6 @@ class AnomalyDetector:
             return
         self.tried_loading = True
 
-        # On Vercel serverless, use deterministic rule engine to avoid Python pickle version mismatch
-        if os.environ.get("VERCEL"):
-            self.is_loaded = False
-            return
-
         model_path = os.path.join(self.model_dir, "rf_arp_model.joblib")
         scaler_path = os.path.join(self.model_dir, "arp_scaler.joblib")
 
@@ -36,6 +31,7 @@ class AnomalyDetector:
                 self.model = joblib.load(model_path)
                 self.scaler = joblib.load(scaler_path)
                 self.is_loaded = True
+                print("[AnomalyDetector] Successfully loaded trained Random Forest model.")
             except BaseException as e:
                 print(f"[AnomalyDetector] Joblib load fallback: {e}")
                 self.is_loaded = False
@@ -65,9 +61,9 @@ class AnomalyDetector:
                     "anomaly_score": anomaly_score
                 }
             except Exception as e:
-                print(f"[AnomalyDetector] Predict exception, using mathematical fallback: {e}")
+                print(f"[AnomalyDetector] Predict exception, using fallback: {e}")
 
-        # Deterministic Mathematical Rule Engine (100% reliable across all Python/serverless runtimes)
+        # Deterministic Mathematical Rule Fallback (Guarantees 100% serverless resilience)
         feats = arp_vector[0]
         req_rate, rep_rate, ratio, mac_changes, conflicts = feats
 

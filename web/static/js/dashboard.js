@@ -18,73 +18,95 @@ const attackCategoryCounts = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    initCharts();
+    // 1. Safe Chart Initialization
+    try {
+        initCharts();
+    } catch (e) {
+        console.warn("Chart init non-fatal exception:", e);
+    }
+
+    // 2. Fetch Model Evaluation Metrics Immediately
     fetchModelMetrics();
 
-    // Trigger initial event immediately so dashboard is populated on first load
+    // 3. Trigger initial event immediately so dashboard is populated on first load
     fetchNextEvent();
 
-    // Start continuous stream/polling
+    // 4. Start continuous stream and polling fallback
     initSSE();
     startPollingFallback();
 
-    document.getElementById("toggleDemoBtn").addEventListener("click", toggleDemoMode);
-    document.getElementById("pauseStreamBtn").addEventListener("click", toggleStream);
-    document.getElementById("alertSearch").addEventListener("input", filterAlerts);
-    document.getElementById("severityFilter").addEventListener("change", filterAlerts);
-    document.getElementById("categoryFilter").addEventListener("change", filterAlerts);
+    // 5. Connect UI Event Listeners safely
+    safeAddEventListener("toggleDemoBtn", "click", toggleDemoMode);
+    safeAddEventListener("pauseStreamBtn", "click", toggleStream);
+    safeAddEventListener("alertSearch", "input", filterAlerts);
+    safeAddEventListener("severityFilter", "change", filterAlerts);
+    safeAddEventListener("categoryFilter", "change", filterAlerts);
 });
 
-function initCharts() {
-    // Timeline Chart
-    const ctxTimeline = document.getElementById("timelineChart").getContext("2d");
-    timelineChart = new Chart(ctxTimeline, {
-        type: "line",
-        data: {
-            labels: [],
-            datasets: [{
-                label: "Threat Index",
-                data: [],
-                borderColor: "#00f2fe",
-                backgroundColor: "rgba(0, 242, 254, 0.12)",
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { display: false },
-                y: { min: 0, max: 100, grid: { color: "rgba(255, 255, 255, 0.05)" } }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
+function safeAddEventListener(elementId, eventName, handler) {
+    const elem = document.getElementById(elementId);
+    if (elem) {
+        elem.addEventListener(eventName, handler);
+    }
+}
 
-    // Distribution Chart
-    const ctxDist = document.getElementById("distributionChart").getContext("2d");
-    distributionChart = new Chart(ctxDist, {
-        type: "doughnut",
-        data: {
-            labels: ["Normal", "DoS", "DDoS", "PortScan", "BruteForce", "ARP/MITM"],
-            datasets: [{
-                data: [0, 0, 0, 0, 0, 0],
-                backgroundColor: [
-                    "#00e676", "#ff9100", "#ff3b5c", "#00e5ff", "#7928ca", "#e91e63"
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: "right", labels: { color: "#8a99b5", font: { size: 11 } } }
+function initCharts() {
+    if (typeof Chart === 'undefined') {
+        console.warn("Chart.js CDN unavailable. Analytics charts disabled safely.");
+        return;
+    }
+
+    const ctxTimeline = document.getElementById("timelineChart");
+    if (ctxTimeline) {
+        timelineChart = new Chart(ctxTimeline.getContext("2d"), {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Threat Index",
+                    data: [],
+                    borderColor: "#00f2fe",
+                    backgroundColor: "rgba(0, 242, 254, 0.12)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { display: false },
+                    y: { min: 0, max: 100, grid: { color: "rgba(255, 255, 255, 0.05)" } }
+                },
+                plugins: { legend: { display: false } }
             }
-        }
-    });
+        });
+    }
+
+    const ctxDist = document.getElementById("distributionChart");
+    if (ctxDist) {
+        distributionChart = new Chart(ctxDist.getContext("2d"), {
+            type: "doughnut",
+            data: {
+                labels: ["Normal", "DoS", "DDoS", "PortScan", "BruteForce", "ARP/MITM"],
+                datasets: [{
+                    data: [0, 0, 0, 0, 0, 0],
+                    backgroundColor: [
+                        "#00e676", "#ff9100", "#ff3b5c", "#00e5ff", "#7928ca", "#e91e63"
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: "right", labels: { color: "#8a99b5", font: { size: 11 } } }
+                }
+            }
+        });
+    }
 }
 
 function initSSE() {
@@ -94,9 +116,13 @@ function initSSE() {
         eventSource.onmessage = (e) => {
             if (isPaused) return;
 
-            const payload = JSON.parse(e.data);
-            if (payload && payload.event) {
-                processNewEvent(payload.event, payload.stats);
+            try {
+                const payload = JSON.parse(e.data);
+                if (payload && payload.event) {
+                    processNewEvent(payload.event, payload.stats);
+                }
+            } catch (parseErr) {
+                console.warn("SSE parse error:", parseErr);
             }
         };
 
@@ -118,7 +144,10 @@ function startPollingFallback() {
 
 function fetchNextEvent() {
     fetch("/api/next_event")
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("HTTP error " + res.status);
+            return res.json();
+        })
         .then(payload => {
             if (payload && payload.event && payload.stats) {
                 processNewEvent(payload.event, payload.stats);
@@ -150,15 +179,15 @@ function toggleDemoMode() {
         const livePill = document.getElementById("livePill");
 
         if (data.demo_mode) {
-            btn.innerHTML = '<i class="fa-solid fa-toggle-on"></i> Stop Demo Mode';
-            statusDot.className = "status-indicator demo";
-            statusText.innerText = "Demo Mode (Simulated)";
-            livePill.innerHTML = '<span class="pulse-dot"></span> DEMO STREAM ACTIVE';
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-toggle-on"></i> Stop Demo Mode';
+            if (statusDot) statusDot.className = "status-indicator demo";
+            if (statusText) statusText.innerText = "Demo Mode (Simulated)";
+            if (livePill) livePill.innerHTML = '<span class="pulse-dot"></span> DEMO STREAM ACTIVE';
         } else {
-            btn.innerHTML = '<i class="fa-solid fa-toggle-off"></i> Start Demo Mode';
-            statusDot.className = "status-indicator online";
-            statusText.innerText = "Online (Passive Stream)";
-            livePill.innerHTML = '<span class="pulse-dot"></span> PASSIVE STREAM ACTIVE';
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-toggle-off"></i> Start Demo Mode';
+            if (statusDot) statusDot.className = "status-indicator online";
+            if (statusText) statusText.innerText = "Online (Passive Stream)";
+            if (livePill) livePill.innerHTML = '<span class="pulse-dot"></span> PASSIVE STREAM ACTIVE';
         }
     })
     .catch(err => console.error("Error toggling demo mode:", err));
@@ -167,17 +196,21 @@ function toggleDemoMode() {
 function toggleStream() {
     isPaused = !isPaused;
     const btn = document.getElementById("pauseStreamBtn");
-    if (isPaused) {
-        btn.innerHTML = '<i class="fa-solid fa-play"></i> Resume Feed';
-        btn.classList.add("btn-paused");
-    } else {
-        btn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause Feed';
-        btn.classList.remove("btn-paused");
+    if (btn) {
+        if (isPaused) {
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Resume Feed';
+            btn.classList.add("btn-paused");
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause Feed';
+            btn.classList.remove("btn-paused");
+        }
     }
 }
 
 function triggerAttack(attackType) {
-    const intensity = document.getElementById("simIntensity").value || "Medium";
+    const intensityElem = document.getElementById("simIntensity");
+    const intensity = intensityElem ? intensityElem.value : "Medium";
+
     fetch("/api/trigger_attack", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -186,17 +219,18 @@ function triggerAttack(attackType) {
     .then(res => res.json())
     .then(data => {
         console.log("Attack simulation triggered:", data.message);
-        // Immediately fetch the triggered event so the user sees instant feedback
         setTimeout(fetchNextEvent, 200);
     })
     .catch(err => console.error("Error triggering attack:", err));
 }
 
 function updateStats(stats) {
-    document.getElementById("statTotalEvents").innerText = (stats.total_events || 0).toLocaleString();
-    document.getElementById("statNormalCount").innerText = (stats.normal_count || 0).toLocaleString();
-    document.getElementById("statAttackCount").innerText = (stats.attack_count || 0).toLocaleString();
-    document.getElementById("statThreatScore").innerText = (stats.latest_threat_score || 0.0);
+    if (!stats) return;
+
+    safeSetText("statTotalEvents", (stats.total_events || 0).toLocaleString());
+    safeSetText("statNormalCount", (stats.normal_count || 0).toLocaleString());
+    safeSetText("statAttackCount", (stats.attack_count || 0).toLocaleString());
+    safeSetText("statThreatScore", (stats.latest_threat_score !== undefined ? stats.latest_threat_score : 0.0));
 
     attackCategoryCounts["Normal"] = stats.normal_count || 0;
     attackCategoryCounts["DoS"] = stats.dos_count || 0;
@@ -205,29 +239,37 @@ function updateStats(stats) {
     attackCategoryCounts["BruteForce"] = stats.bruteforce_count || 0;
     attackCategoryCounts["ARP Spoofing / MITM"] = stats.mitm_count || 0;
 
-    document.getElementById("count-PortScan").innerText = `${stats.portscan_count || 0} Intercepted`;
-    document.getElementById("count-BruteForce").innerText = `${stats.bruteforce_count || 0} Intercepted`;
-    document.getElementById("count-MITM").innerText = `${stats.mitm_count || 0} Intercepted`;
-    document.getElementById("count-DoS").innerText = `${stats.dos_count || 0} Intercepted`;
-    document.getElementById("count-DDoS").innerText = `${stats.ddos_count || 0} Intercepted`;
+    safeSetText("count-PortScan", `${stats.portscan_count || 0} Intercepted`);
+    safeSetText("count-BruteForce", `${stats.bruteforce_count || 0} Intercepted`);
+    safeSetText("count-MITM", `${stats.mitm_count || 0} Intercepted`);
+    safeSetText("count-DoS", `${stats.dos_count || 0} Intercepted`);
+    safeSetText("count-DDoS", `${stats.ddos_count || 0} Intercepted`);
+}
+
+function safeSetText(id, text) {
+    const elem = document.getElementById(id);
+    if (elem) elem.innerText = text;
 }
 
 function updatePredictionCard(event) {
     if (!event) return;
-    document.getElementById("predEndpoints").innerText = `${event.source_ip} ➔ ${event.destination_ip} (${event.protocol})`;
+
+    safeSetText("predEndpoints", `${event.source_ip} ➔ ${event.destination_ip} (${event.protocol})`);
     
     const predClassElem = document.getElementById("predClass");
-    predClassElem.innerText = event.classification;
-    if (event.classification === "Normal") {
-        predClassElem.style.color = "var(--color-green)";
-    } else {
-        predClassElem.style.color = "var(--color-red)";
+    if (predClassElem) {
+        predClassElem.innerText = event.classification;
+        predClassElem.style.color = (event.classification === "Normal") ? "var(--color-green)" : "var(--color-red)";
     }
 
-    document.getElementById("predConfidence").innerText = `${event.confidence}%`;
-    document.getElementById("predThreatScore").innerHTML = `${event.threat_score} <span class="sev-badge sev-${event.severity}">${event.severity}</span>`;
+    safeSetText("predConfidence", `${event.confidence}%`);
 
-    document.getElementById("predWhyDetected").innerText = event.why_detected || "Normal baseline parameters.";
+    const threatElem = document.getElementById("predThreatScore");
+    if (threatElem) {
+        threatElem.innerHTML = `${event.threat_score} <span class="sev-badge sev-${event.severity}">${event.severity}</span>`;
+    }
+
+    safeSetText("predWhyDetected", event.why_detected || "Normal baseline parameters.");
 
     // Key Features Chips
     const flow = event.raw_features?.flow || {};
@@ -240,37 +282,53 @@ function updatePredictionCard(event) {
     const failed_auth = flow.failed_auth_attempts !== undefined ? flow.failed_auth_attempts : "--";
     const arp_ratio = arp.arp_reply_req_ratio !== undefined ? arp.arp_reply_req_ratio.toFixed(1) : "--";
 
-    document.getElementById("predKeyFeatures").innerHTML = `
-        <span class="chip">Packet Rate: ${pkts_s}</span>
-        <span class="chip">Flow Duration: ${duration}</span>
-        <span class="chip">Dst Port: ${dst_port}</span>
-        <span class="chip">SYN Flags: ${syn_cnt}</span>
-        <span class="chip">Auth Failures: ${failed_auth}</span>
-        <span class="chip">ARP Reply Ratio: ${arp_ratio}</span>
-    `;
+    const keyFeatsElem = document.getElementById("predKeyFeatures");
+    if (keyFeatsElem) {
+        keyFeatsElem.innerHTML = `
+            <span class="chip">Packet Rate: ${pkts_s}</span>
+            <span class="chip">Flow Duration: ${duration}</span>
+            <span class="chip">Dst Port: ${dst_port}</span>
+            <span class="chip">SYN Flags: ${syn_cnt}</span>
+            <span class="chip">Auth Failures: ${failed_auth}</span>
+            <span class="chip">ARP Reply Ratio: ${arp_ratio}</span>
+        `;
+    }
 }
 
 function updateCharts(event, stats) {
     if (!event || !event.timestamp) return;
-    const timestampLabel = event.timestamp.split("T")[1].substring(0, 8);
-    timelineChart.data.labels.push(timestampLabel);
-    timelineChart.data.datasets[0].data.push(event.threat_score);
 
-    if (timelineChart.data.labels.length > 20) {
-        timelineChart.data.labels.shift();
-        timelineChart.data.datasets[0].data.shift();
+    if (timelineChart) {
+        try {
+            const timestampLabel = event.timestamp.split("T")[1].substring(0, 8);
+            timelineChart.data.labels.push(timestampLabel);
+            timelineChart.data.datasets[0].data.push(event.threat_score);
+
+            if (timelineChart.data.labels.length > 20) {
+                timelineChart.data.labels.shift();
+                timelineChart.data.datasets[0].data.shift();
+            }
+            timelineChart.update();
+        } catch (e) {
+            console.warn("Timeline chart update error:", e);
+        }
     }
-    timelineChart.update();
 
-    distributionChart.data.datasets[0].data = [
-        stats.normal_count || 0,
-        stats.dos_count || 0,
-        stats.ddos_count || 0,
-        stats.portscan_count || 0,
-        stats.bruteforce_count || 0,
-        stats.mitm_count || 0
-    ];
-    distributionChart.update();
+    if (distributionChart) {
+        try {
+            distributionChart.data.datasets[0].data = [
+                stats.normal_count || 0,
+                stats.dos_count || 0,
+                stats.ddos_count || 0,
+                stats.portscan_count || 0,
+                stats.bruteforce_count || 0,
+                stats.mitm_count || 0
+            ];
+            distributionChart.update();
+        } catch (e) {
+            console.warn("Distribution chart update error:", e);
+        }
+    }
 }
 
 function updateMitreMatrix(event) {
@@ -297,6 +355,8 @@ function addAlertToTable(event) {
 
 function renderAlertTable(alerts) {
     const tbody = document.getElementById("alertTableBody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
     if (alerts.length === 0) {
@@ -325,9 +385,13 @@ function renderAlertTable(alerts) {
 }
 
 function filterAlerts() {
-    const searchQuery = (document.getElementById("alertSearch").value || "").toLowerCase();
-    const sevFilter = document.getElementById("severityFilter").value;
-    const catFilter = document.getElementById("categoryFilter").value;
+    const searchElem = document.getElementById("alertSearch");
+    const sevElem = document.getElementById("severityFilter");
+    const catElem = document.getElementById("categoryFilter");
+
+    const searchQuery = (searchElem ? searchElem.value : "").toLowerCase();
+    const sevFilter = sevElem ? sevElem.value : "ALL";
+    const catFilter = catElem ? catElem.value : "ALL";
 
     const filtered = alertDataStore.filter(ev => {
         const matchesSearch = 
@@ -351,23 +415,23 @@ function fetchModelMetrics() {
         .then(res => res.json())
         .then(data => {
             if (data.flow_model) {
-                document.getElementById("m-dl-acc").innerText = (data.flow_model.accuracy * 100).toFixed(2) + "%";
-                document.getElementById("m-dl-prec").innerText = (data.flow_model.precision * 100).toFixed(2) + "%";
-                document.getElementById("m-dl-rec").innerText = (data.flow_model.recall * 100).toFixed(2) + "%";
-                document.getElementById("m-dl-f1").innerText = (data.flow_model.f1_score * 100).toFixed(2) + "%";
-                document.getElementById("m-dl-fpr").innerText = (data.flow_model.fpr * 100).toFixed(2) + "%";
-                document.getElementById("m-dl-fnr").innerText = ((data.flow_model.fnr || (1 - data.flow_model.recall)) * 100).toFixed(2) + "%";
+                safeSetText("m-dl-acc", (data.flow_model.accuracy * 100).toFixed(2) + "%");
+                safeSetText("m-dl-prec", (data.flow_model.precision * 100).toFixed(2) + "%");
+                safeSetText("m-dl-rec", (data.flow_model.recall * 100).toFixed(2) + "%");
+                safeSetText("m-dl-f1", (data.flow_model.f1_score * 100).toFixed(2) + "%");
+                safeSetText("m-dl-fpr", (data.flow_model.fpr * 100).toFixed(2) + "%");
+                safeSetText("m-dl-fnr", ((data.flow_model.fnr !== undefined ? data.flow_model.fnr : (1 - data.flow_model.recall)) * 100).toFixed(2) + "%");
 
                 renderConfusionMatrixTable("dlCmContainer", data.flow_model.confusion_matrix, data.flow_model.classes);
             }
 
             if (data.arp_anomaly_model) {
-                document.getElementById("m-rf-acc").innerText = (data.arp_anomaly_model.accuracy * 100).toFixed(2) + "%";
-                document.getElementById("m-rf-prec").innerText = (data.arp_anomaly_model.precision * 100).toFixed(2) + "%";
-                document.getElementById("m-rf-rec").innerText = (data.arp_anomaly_model.recall * 100).toFixed(2) + "%";
-                document.getElementById("m-rf-f1").innerText = (data.arp_anomaly_model.f1_score * 100).toFixed(2) + "%";
-                document.getElementById("m-rf-fpr").innerText = (data.arp_anomaly_model.fpr * 100).toFixed(2) + "%";
-                document.getElementById("m-rf-fnr").innerText = ((data.arp_anomaly_model.fnr || (1 - data.arp_anomaly_model.recall)) * 100).toFixed(2) + "%";
+                safeSetText("m-rf-acc", (data.arp_anomaly_model.accuracy * 100).toFixed(2) + "%");
+                safeSetText("m-rf-prec", (data.arp_anomaly_model.precision * 100).toFixed(2) + "%");
+                safeSetText("m-rf-rec", (data.arp_anomaly_model.recall * 100).toFixed(2) + "%");
+                safeSetText("m-rf-f1", (data.arp_anomaly_model.f1_score * 100).toFixed(2) + "%");
+                safeSetText("m-rf-fpr", (data.arp_anomaly_model.fpr * 100).toFixed(2) + "%");
+                safeSetText("m-rf-fnr", ((data.arp_anomaly_model.fnr !== undefined ? data.arp_anomaly_model.fnr : (1 - data.arp_anomaly_model.recall)) * 100).toFixed(2) + "%");
 
                 renderConfusionMatrixTable("rfCmContainer", data.arp_anomaly_model.confusion_matrix, data.arp_anomaly_model.classes);
             }
@@ -377,7 +441,7 @@ function fetchModelMetrics() {
 
 function renderConfusionMatrixTable(containerId, cm, classes) {
     const container = document.getElementById(containerId);
-    if (!cm || !classes) return;
+    if (!container || !cm || !classes) return;
 
     let html = '<table class="cm-table"><thead><tr><th>Actual \\ Pred</th>';
     classes.forEach(c => { html += `<th>${c}</th>`; });
@@ -402,6 +466,8 @@ function inspectAlert(eventId) {
     if (!event) return;
 
     const modalBody = document.getElementById("modalBody");
+    if (!modalBody) return;
+
     modalBody.innerHTML = `
         <div class="lifecycle-bar">
             <div class="step step-done"><i class="fa-solid fa-circle-check"></i> 1. Detected</div>
@@ -458,9 +524,11 @@ function inspectAlert(eventId) {
         <pre class="raw-json">${JSON.stringify(event, null, 2)}</pre>
     `;
 
-    document.getElementById("alertModal").style.display = "flex";
+    const modal = document.getElementById("alertModal");
+    if (modal) modal.style.display = "flex";
 }
 
 function closeModal() {
-    document.getElementById("alertModal").style.display = "none";
+    const modal = document.getElementById("alertModal");
+    if (modal) modal.style.display = "none";
 }
