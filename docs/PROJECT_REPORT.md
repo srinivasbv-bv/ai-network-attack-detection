@@ -10,7 +10,7 @@
 
 Network-based cyber-attacks such as Denial of Service (DoS), Distributed Denial of Service (DDoS), port scanning, brute-force login attempts, and Man-in-the-Middle (MITM)/ARP spoofing continue to be among the most frequent and disruptive threats faced by organizational networks. Traditional signature-based Intrusion Detection Systems (IDS) are effective against known attack signatures but struggle against high-volume, evolving, and distributed attack patterns. 
 
-This project proposes the **AI POWERED THREAT DETECTION SYSTEM**, combining deep learning (CNN+LSTM / Deep MLP architecture) for flow-based volumetric attacks with a machine-learning-based anomaly detector (Random Forest) for protocol-level attacks such as ARP spoofing and MITM. Detected events are indexed and visualized through the open-source ELK Stack (Elasticsearch, Logstash, Kibana), and each detection is mapped to the MITRE ATT&CK framework, Cyber Kill Chain, CAPEC, and OWASP Top 10 to give security analysts standardized, actionable context. The system is designed entirely using free and open-source tools and benchmark datasets, making it a low-cost, reproducible solution suitable for academic research and small-to-medium network deployments.
+This project proposes the **AI POWERED THREAT DETECTION SYSTEM**, combining deep learning (Deep Multi-Layer Perceptron / Deep MLP architecture) for flow-based volumetric attacks with a machine-learning-based anomaly detector (Random Forest) for protocol-level attacks such as ARP spoofing and MITM. Detected events are indexed and visualized through the open-source ELK Stack (Elasticsearch, Logstash, Kibana), and each detection is mapped to the MITRE ATT&CK framework, Cyber Kill Chain, CAPEC, and OWASP Top 10 to give security analysts standardized, actionable context. The system is designed entirely using free and open-source tools and benchmark datasets, making it a low-cost, reproducible solution suitable for academic research and small-to-medium network deployments.
 
 ---
 
@@ -26,7 +26,7 @@ Existing rule-based network defenses cannot reliably keep pace with high-volume,
 
 ### 1.3 Objectives
 1. **To Study and categorize** the characteristics of DoS, DDoS, Port Scanning, Brute-Force, and MITM/ARP Spoofing attacks at the network flow and protocol level.
-2. **To Design and train** deep learning models (CNN+LSTM / MLP) using TensorFlow/Keras / Scikit-Learn to detect volumetric and sequential attack patterns.
+2. **To Design and train** deep learning models (Deep Multi-Layer Perceptron / Deep MLP) using Scikit-Learn to detect volumetric and sequential attack patterns.
 3. **To Design** a machine-learning-based anomaly detector (Random Forest) for protocol-level MITM/ARP spoofing attacks that do not exhibit high-volume traffic signatures.
 4. **To Integrate** the ELK Stack (Elasticsearch, Logstash, Kibana) for centralized log ingestion, storage, and visual analytics of detected events.
 5. **To Map** each detected attack category to MITRE ATT&CK techniques, Cyber Kill Chain stages, CAPEC references, and OWASP Top 10 guidelines.

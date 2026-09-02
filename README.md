@@ -11,7 +11,7 @@
 Network-based cyber-attacks such as Denial of Service (DoS), Distributed Denial of Service (DDoS), port scanning, brute-force login attempts, and Man-in-the-Middle (MITM)/ARP spoofing represent significant threats to modern enterprise infrastructure. Traditional signature-based Intrusion Detection Systems (IDS) fail against evolving, obfuscated, and low-volume attack patterns.
 
 This project delivers a complete, production-ready **AI POWERED THREAT DETECTION SYSTEM** combining:
-1. **Flow-Based Deep Learning Engine (CNN + LSTM / Deep MLP)** for volumetric and sequential attacks (**DoS, DDoS, Port Scanning, Brute-Force**).
+1. **Flow-Based Deep Learning Engine (Deep Multi-Layer Perceptron / Deep MLP)** for volumetric and sequential attacks (**DoS, DDoS, Port Scanning, Brute-Force**).
 2. **Machine-Learning Protocol Anomaly Detector (Random Forest)** for protocol-level attacks (**MITM / ARP Spoofing**).
 3. **Ensemble Correlation Engine**: Fuses dual-path probabilities and resolves signal conflicts into a single classified security event enriched with feature-based reasoning explanations ("Why Was This Detected?").
 4. **Threat Framework Mapping**: Maps every detection to **MITRE ATT&CK** (`T1499`, `T1498`, `T1046`, `T1110`, `T1557`), **Cyber Kill Chain**, **CAPEC**, and **OWASP Top 10**.
@@ -96,7 +96,7 @@ http://127.0.0.1:5000
 
 | Model Component | Architecture | Accuracy | Precision | Recall | F1-Score | FPR | FNR |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Flow Volumetric Engine** | Deep Learning (CNN+LSTM / MLP) | **99.75%** | **99.75%** | **99.75%** | **99.75%** | **0.06%** | **0.25%** |
+| **Flow Volumetric Engine** | Deep Neural Network (Deep MLP) | **99.75%** | **99.75%** | **99.75%** | **99.75%** | **0.06%** | **0.25%** |
 | **Protocol Anomaly Engine** | Random Forest (100 Trees) | **100.00%** | **100.00%** | **100.00%** | **100.00%** | **0.00%** | **0.00%** |
 
 - **Dataset Info**: CICIDS2017 & UNSW-NB15 Flow Schema + ARP Anomaly Benchmark (14,000 total samples, 80/20 train/test split).

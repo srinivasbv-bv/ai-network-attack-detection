@@ -199,7 +199,7 @@ def create_beginner_guide_pdf(filename="AI_Network_Attack_Detection_Beginners_Gu
         "Hackers can easily bypass old systems by slightly altering their attack code, varying packet timing, or launching low-volume attacks. "
         "Furthermore, old systems trigger hundreds of false alarms, overwhelming security staff.<br/><br/>"
         "<b>The Solution:</b> This project uses a <b>Dual-Engine AI Architecture</b>: "
-        "<br/>• <b>Deep Learning Engine (CNN + LSTM / Deep MLP):</b> Learns complex traffic sequences over time to catch high-volume flooding attacks (DoS, DDoS, Port Scans, Brute-Force). "
+        "<br/>• <b>Deep Learning Engine (Deep Multi-Layer Perceptron / Deep MLP):</b> Learns complex traffic feature representations to catch high-volume flooding attacks (DoS, DDoS, Port Scans, Brute-Force). "
         "<br/>• <b>Machine Learning Anomaly Engine (Random Forest):</b> Monitors network protocol rules to catch sneaky, low-volume eavesdropping attacks (ARP Spoofing / Man-in-the-Middle).",
         body_style
     ))

@@ -135,7 +135,7 @@ def train():
             "arp_features": list(X_arp.columns)
         },
         "flow_model": {
-            "architecture": "Deep Neural Network (Multi-Layer Perceptron / CNN-LSTM Feature Layers: 128 -> 64 -> 32, ReLU Activation, Adam Optimizer)",
+            "architecture": "Deep Neural Network (Multi-Layer Perceptron: 128 -> 64 -> 32 Dense Layers, ReLU Activation, Adam Optimizer)",
             "accuracy": float(acc_f),
             "precision": float(prec_f),
             "recall": float(rec_f),

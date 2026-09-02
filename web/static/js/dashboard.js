@@ -2,6 +2,7 @@ let eventSource = null;
 let isPaused = false;
 let isDemoActive = true;
 let alertDataStore = [];
+let pollingInterval = null;
 
 // Chart instances
 let timelineChart = null;
@@ -18,8 +19,14 @@ const attackCategoryCounts = {
 
 document.addEventListener("DOMContentLoaded", () => {
     initCharts();
-    initSSE();
     fetchModelMetrics();
+
+    // Trigger initial event immediately so dashboard is populated on first load
+    fetchNextEvent();
+
+    // Start continuous stream/polling
+    initSSE();
+    startPollingFallback();
 
     document.getElementById("toggleDemoBtn").addEventListener("click", toggleDemoMode);
     document.getElementById("pauseStreamBtn").addEventListener("click", toggleStream);
@@ -88,45 +95,44 @@ function initSSE() {
             if (isPaused) return;
 
             const payload = JSON.parse(e.data);
-            const event = payload.event;
-            const stats = payload.stats;
-
-            updateStats(stats);
-            updatePredictionCard(event);
-            addAlertToTable(event);
-            updateCharts(event, stats);
-            updateMitreMatrix(event);
+            if (payload && payload.event) {
+                processNewEvent(payload.event, payload.stats);
+            }
         };
 
         eventSource.onerror = () => {
-            console.warn("SSE stream interrupted. Switching to polling fallback...");
             if (eventSource) eventSource.close();
-            startPollingFallback();
         };
     } catch (err) {
-        console.warn("SSE init error. Using polling fallback...");
-        startPollingFallback();
+        console.warn("SSE init error:", err);
     }
 }
 
-let pollingInterval = null;
 function startPollingFallback() {
     if (pollingInterval) return;
     pollingInterval = setInterval(() => {
-        if (isPaused) return;
-        fetch("/api/next_event")
-            .then(res => res.json())
-            .then(payload => {
-                if (payload.event && payload.stats) {
-                    updateStats(payload.stats);
-                    updatePredictionCard(payload.event);
-                    addAlertToTable(payload.event);
-                    updateCharts(payload.event, payload.stats);
-                    updateMitreMatrix(payload.event);
-                }
-            })
-            .catch(err => console.warn("Polling fallback error:", err));
+        if (isPaused || !isDemoActive) return;
+        fetchNextEvent();
     }, 1500);
+}
+
+function fetchNextEvent() {
+    fetch("/api/next_event")
+        .then(res => res.json())
+        .then(payload => {
+            if (payload && payload.event && payload.stats) {
+                processNewEvent(payload.event, payload.stats);
+            }
+        })
+        .catch(err => console.warn("Fetch event error:", err));
+}
+
+function processNewEvent(event, stats) {
+    updateStats(stats);
+    updatePredictionCard(event);
+    addAlertToTable(event);
+    updateCharts(event, stats);
+    updateMitreMatrix(event);
 }
 
 function toggleDemoMode() {
@@ -180,31 +186,34 @@ function triggerAttack(attackType) {
     .then(res => res.json())
     .then(data => {
         console.log("Attack simulation triggered:", data.message);
+        // Immediately fetch the triggered event so the user sees instant feedback
+        setTimeout(fetchNextEvent, 200);
     })
     .catch(err => console.error("Error triggering attack:", err));
 }
 
 function updateStats(stats) {
-    document.getElementById("statTotalEvents").innerText = stats.total_events.toLocaleString();
-    document.getElementById("statNormalCount").innerText = stats.normal_count.toLocaleString();
-    document.getElementById("statAttackCount").innerText = stats.attack_count.toLocaleString();
-    document.getElementById("statThreatScore").innerText = stats.latest_threat_score;
+    document.getElementById("statTotalEvents").innerText = (stats.total_events || 0).toLocaleString();
+    document.getElementById("statNormalCount").innerText = (stats.normal_count || 0).toLocaleString();
+    document.getElementById("statAttackCount").innerText = (stats.attack_count || 0).toLocaleString();
+    document.getElementById("statThreatScore").innerText = (stats.latest_threat_score || 0.0);
 
-    attackCategoryCounts["Normal"] = stats.normal_count;
-    attackCategoryCounts["DoS"] = stats.dos_count;
-    attackCategoryCounts["DDoS"] = stats.ddos_count;
-    attackCategoryCounts["PortScan"] = stats.portscan_count;
-    attackCategoryCounts["BruteForce"] = stats.bruteforce_count;
-    attackCategoryCounts["ARP Spoofing / MITM"] = stats.mitm_count;
+    attackCategoryCounts["Normal"] = stats.normal_count || 0;
+    attackCategoryCounts["DoS"] = stats.dos_count || 0;
+    attackCategoryCounts["DDoS"] = stats.ddos_count || 0;
+    attackCategoryCounts["PortScan"] = stats.portscan_count || 0;
+    attackCategoryCounts["BruteForce"] = stats.bruteforce_count || 0;
+    attackCategoryCounts["ARP Spoofing / MITM"] = stats.mitm_count || 0;
 
-    document.getElementById("count-PortScan").innerText = `${stats.portscan_count} Intercepted`;
-    document.getElementById("count-BruteForce").innerText = `${stats.bruteforce_count} Intercepted`;
-    document.getElementById("count-MITM").innerText = `${stats.mitm_count} Intercepted`;
-    document.getElementById("count-DoS").innerText = `${stats.dos_count} Intercepted`;
-    document.getElementById("count-DDoS").innerText = `${stats.ddos_count} Intercepted`;
+    document.getElementById("count-PortScan").innerText = `${stats.portscan_count || 0} Intercepted`;
+    document.getElementById("count-BruteForce").innerText = `${stats.bruteforce_count || 0} Intercepted`;
+    document.getElementById("count-MITM").innerText = `${stats.mitm_count || 0} Intercepted`;
+    document.getElementById("count-DoS").innerText = `${stats.dos_count || 0} Intercepted`;
+    document.getElementById("count-DDoS").innerText = `${stats.ddos_count || 0} Intercepted`;
 }
 
 function updatePredictionCard(event) {
+    if (!event) return;
     document.getElementById("predEndpoints").innerText = `${event.source_ip} ➔ ${event.destination_ip} (${event.protocol})`;
     
     const predClassElem = document.getElementById("predClass");
@@ -242,6 +251,7 @@ function updatePredictionCard(event) {
 }
 
 function updateCharts(event, stats) {
+    if (!event || !event.timestamp) return;
     const timestampLabel = event.timestamp.split("T")[1].substring(0, 8);
     timelineChart.data.labels.push(timestampLabel);
     timelineChart.data.datasets[0].data.push(event.threat_score);
@@ -253,17 +263,18 @@ function updateCharts(event, stats) {
     timelineChart.update();
 
     distributionChart.data.datasets[0].data = [
-        stats.normal_count,
-        stats.dos_count,
-        stats.ddos_count,
-        stats.portscan_count,
-        stats.bruteforce_count,
-        stats.mitm_count
+        stats.normal_count || 0,
+        stats.dos_count || 0,
+        stats.ddos_count || 0,
+        stats.portscan_count || 0,
+        stats.bruteforce_count || 0,
+        stats.mitm_count || 0
     ];
     distributionChart.update();
 }
 
 function updateMitreMatrix(event) {
+    if (!event) return;
     const mitreId = event.mitre_id;
     if (mitreId && mitreId !== "N/A") {
         const card = document.getElementById(`mitre-${mitreId}`);
@@ -277,6 +288,7 @@ function updateMitreMatrix(event) {
 }
 
 function addAlertToTable(event) {
+    if (!event) return;
     alertDataStore.unshift(event);
     if (alertDataStore.length > 50) alertDataStore.pop();
 

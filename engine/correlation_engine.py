@@ -74,7 +74,7 @@ class EnsembleCorrelationEngine:
         else:
             final_label = flow_result["predicted_label"]
             final_confidence = flow_result["confidence"]
-            detection_engine = "Deep Learning Flow Model (CNN+LSTM)"
+            detection_engine = "Deep Learning Flow Model (Deep MLP Neural Network)"
 
         # 4. Threat Framework Mapping & Feature Reasoning
         threat_meta = ThreatMapper.map_threat(final_label)
