@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=5.0">
 </head>
 <body>
     <div class="app-container">
@@ -94,6 +94,28 @@
                 </div>
             </section>
 
+            <!-- Charts Section (Placed directly below Attack Simulator) -->
+            <section class="charts-grid">
+                <div class="panel chart-panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-chart-area"></i> Real-Time Threat Score Timeline (0 - 100)</h3>
+                        <span class="range-info">Low: 0-29 | Medium: 30-59 | High: 60-84 | Critical: 85-100</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel chart-panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-chart-pie"></i> Traffic Category Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
             <!-- Metrics Overview Bar -->
             <section class="stats-row">
                 <div class="stat-card">
@@ -168,28 +190,6 @@
                             <span class="chip">Auth Failures: --</span>
                             <span class="chip">ARP Reply Ratio: --</span>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Charts Section -->
-            <section class="charts-grid">
-                <div class="panel chart-panel">
-                    <div class="panel-header">
-                        <h3><i class="fa-solid fa-chart-area"></i> Real-Time Threat Score Timeline (0 - 100)</h3>
-                        <span class="range-info">Low: 0-29 | Medium: 30-59 | High: 60-84 | Critical: 85-100</span>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="timelineChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="panel chart-panel">
-                    <div class="panel-header">
-                        <h3><i class="fa-solid fa-chart-pie"></i> Traffic Category Distribution</h3>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="distributionChart"></canvas>
                     </div>
                 </div>
             </section>
@@ -417,6 +417,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=4.0"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=5.0"></script>
 </body>
 </html>
