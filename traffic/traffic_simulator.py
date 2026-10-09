@@ -50,11 +50,8 @@ class NetworkTrafficSimulator:
     def generate_simulated_traffic(self, attack_type=None, intensity="Medium"):
         """Generates synthetic flow & protocol metrics matching a chosen traffic type."""
         if attack_type is None:
-            # 85% Normal traffic, 15% random background attacks
-            attack_type = random.choices(
-                ["Normal", "DoS", "DDoS", "PortScan", "BruteForce", "ARP Spoofing / MITM"],
-                weights=[0.85, 0.03, 0.03, 0.03, 0.03, 0.03]
-            )[0]
+            # 100% Normal baseline traffic when no manual attack is triggered
+            attack_type = "Normal"
 
         src_ips = ["192.168.1.102", "192.168.1.105", "10.0.0.45", "172.16.0.12", "192.168.1.210"]
         dst_ips = ["192.168.1.1", "192.168.1.10", "10.0.0.1", "172.16.0.1"]
