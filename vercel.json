@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "ai-powered-threat-detection",
+  "name": "ai-powered-network-attack-detection",
   "builds": [
     {
       "src": "api/index.py",
