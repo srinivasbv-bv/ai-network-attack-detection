@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=6.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=7.0">
 </head>
 <body>
     <div class="app-container">
@@ -47,7 +47,7 @@
             <!-- Header Bar -->
             <header class="top-header">
                 <div class="header-title">
-                    <h1>AI POWERED THREAT DETECTION SYSTEM</h1>
+                    <h1>AI POWERED THREAT DETECTION SYSTEM <span class="author-tag">By Suman</span></h1>
                     <p>Deep Learning (Deep MLP Neural Network) & Random Forest Protocol Anomaly Pipeline • SOC Analyst Monitoring Console</p>
                 </div>
                 <div class="header-actions">
@@ -417,6 +417,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=6.0"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=7.0"></script>
 </body>
 </html>
