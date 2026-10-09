@@ -17,9 +17,11 @@ class NetworkTrafficSimulator:
         self.lock = threading.Lock()
         self.active_manual_attack = None
         self.attack_intensity = "Medium" # Low, Medium, High
+        self.background_attacks_enabled = True # Toggle for random attack generation
         self.stats = {
             "system_status": "Demo Mode (Simulated Traffic)",
             "demo_mode": True,
+            "background_attacks_enabled": True,
             "total_events": 0,
             "normal_count": 0,
             "attack_count": 0,
@@ -41,6 +43,12 @@ class NetworkTrafficSimulator:
             self.stats["demo_mode"] = self.demo_mode
         return self.demo_mode
 
+    def set_background_attacks(self, enabled):
+        with self.lock:
+            self.background_attacks_enabled = bool(enabled)
+            self.stats["background_attacks_enabled"] = self.background_attacks_enabled
+        return self.background_attacks_enabled
+
     def set_manual_attack(self, attack_type, intensity="Medium"):
         """Injects a specific attack type into the simulation stream with given intensity."""
         with self.lock:
@@ -50,8 +58,13 @@ class NetworkTrafficSimulator:
     def generate_simulated_traffic(self, attack_type=None, intensity="Medium"):
         """Generates synthetic flow & protocol metrics matching a chosen traffic type."""
         if attack_type is None:
-            # 100% Normal baseline traffic when no manual attack is triggered
-            attack_type = "Normal"
+            if getattr(self, 'background_attacks_enabled', True):
+                attack_type = random.choices(
+                    ["Normal", "DoS", "DDoS", "PortScan", "BruteForce", "ARP Spoofing / MITM"],
+                    weights=[0.75, 0.05, 0.05, 0.05, 0.05, 0.05]
+                )[0]
+            else:
+                attack_type = "Normal"
 
         src_ips = ["192.168.1.102", "192.168.1.105", "10.0.0.45", "172.16.0.12", "192.168.1.210"]
         dst_ips = ["192.168.1.1", "192.168.1.10", "10.0.0.1", "172.16.0.1"]

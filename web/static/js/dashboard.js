@@ -1,6 +1,7 @@
 let eventSource = null;
 let isPaused = false;
 let isDemoActive = true;
+let isBgAttacksActive = true;
 let alertDataStore = [];
 let pollingInterval = null;
 
@@ -36,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startPollingFallback();
 
     // 5. Connect UI Event Listeners safely
+    safeAddEventListener("toggleBgAttacksBtn", "click", toggleBackgroundAttacks);
     safeAddEventListener("toggleDemoBtn", "click", toggleDemoMode);
     safeAddEventListener("pauseStreamBtn", "click", toggleStream);
     safeAddEventListener("alertSearch", "input", filterAlerts);
@@ -162,6 +164,36 @@ function processNewEvent(event, stats) {
     addAlertToTable(event);
     updateCharts(event, stats);
     updateMitreMatrix(event);
+}
+
+function toggleBackgroundAttacks() {
+    isBgAttacksActive = !isBgAttacksActive;
+    fetch("/api/toggle_background_attacks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: isBgAttacksActive })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const btn = document.getElementById("toggleBgAttacksBtn");
+        const text = document.getElementById("bgAttacksText");
+        if (data.background_attacks) {
+            isBgAttacksActive = true;
+            if (text) text.innerText = "ON";
+            if (btn) {
+                btn.style.opacity = "1";
+                btn.style.borderColor = "var(--accent-cyan)";
+            }
+        } else {
+            isBgAttacksActive = false;
+            if (text) text.innerText = "OFF";
+            if (btn) {
+                btn.style.opacity = "0.6";
+                btn.style.borderColor = "var(--text-muted)";
+            }
+        }
+    })
+    .catch(err => console.error("Error toggling background attacks:", err));
 }
 
 function toggleDemoMode() {

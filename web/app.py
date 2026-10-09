@@ -100,6 +100,13 @@ def toggle_demo():
     status = simulator.set_demo_mode(enabled)
     return jsonify({"status": "success", "demo_mode": status, "system_status": simulator.get_stats()["system_status"]})
 
+@app.route("/api/toggle_background_attacks", methods=["POST"])
+def toggle_background_attacks():
+    req_data = request.get_json() or {}
+    enabled = req_data.get("enabled", True)
+    status = simulator.set_background_attacks(enabled)
+    return jsonify({"status": "success", "background_attacks": status})
+
 @app.route("/api/trigger_attack", methods=["POST"])
 def trigger_attack():
     req_data = request.get_json() or {}
