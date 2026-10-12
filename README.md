@@ -65,9 +65,6 @@ ai_network_attack_detection/
 │   ├── static/css/style.css
 │   ├── static/js/dashboard.js
 │   └── templates/index.html
-├── docs/                         # Documentation, Report & PDF Guide
-│   ├── PROJECT_REPORT.md
-│   └── AI_Network_Attack_Detection_Beginners_Guide.pdf
 ├── main.py                       # Single-command launcher
 └── requirements.txt              # Dependencies
 ```
